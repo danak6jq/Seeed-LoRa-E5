@@ -1,0 +1,106 @@
+Configuration	Seeed-LoRa-E5
+STM32CubeMX 	6.4.0
+Date	12/07/2021
+MCU	STM32WLE5JCIx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC	Single-ended	ADC_TempSens_Input	VP_ADC_TempSens_Input
+ADC	Vrefint Channel	ADC_Vref_Input	VP_ADC_Vref_Input
+DEBUG	Serial Wire	DEBUG_JTCK-SWCLK	PA14
+DEBUG	Serial Wire	DEBUG_JTMS-SWDIO	PA13
+RCC	TCXO	RCC_OSC_IN	OSC_IN
+RCC	TCXO	VDDTCXO	PB0-VDD_TCXO
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_OUT	PC15-OSC32_OUT
+RTC	Activate RTC Clock Source	RTC_VS_RTC_Activate	VP_RTC_VS_RTC_Activate
+RTC	RTC Enabled	RTC_VS_RTC_Calendar	VP_RTC_VS_RTC_Calendar
+RTC	Internal Alarm A	RTC_VS_RTC_Alarm_A_Intern	VP_RTC_VS_RTC_Alarm_A_Intern
+SUBGHZ	Activated	SUBGHZ_VS_SUBGHZ	VP_SUBGHZ_VS_SUBGHZ
+SYS	None	SYS_VS_None	VP_SYS_VS_None
+USART1	Asynchronous	USART1_RX	PB7
+USART1	Asynchronous	USART1_TX	PB6
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+A4	PA14	DEBUG_JTCK-SWCLK	
+B6	PC14-OSC32_IN	RCC_OSC32_IN	
+B8	PA13	DEBUG_JTMS-SWDIO	
+C1	PB3	GPIO_Output	DBG3
+C2	PB4	GPIO_Output	DBG4
+C3	PB7	USART1_RX	USARTx_RX
+C5	PC15-OSC32_OUT	RCC_OSC32_OUT	
+D2	PB5	GPIO_Output	LED2
+D6	PA0	GPIO_Output	DBG1
+D7	PB13	GPIO_EXTI13	BUT1
+E1	PB6	USART1_TX	USARTx_TX
+F6	PB0-VDD_TCXO	VDDTCXO	
+G9	OSC_IN	RCC_OSC_IN	
+H4	PB10	GPIO_Output	DBG2
+J1	PA4	GPIO_Output	RF_CTRL1
+J2	PA5	GPIO_Output	RF_CTRL2
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC	Single-ended	ADC_TempSens_Input	VP_ADC_TempSens_Input
+ADC	Vrefint Channel	ADC_Vref_Input	VP_ADC_Vref_Input
+DEBUG	Serial Wire	DEBUG_JTCK-SWCLK	PA14
+DEBUG	Serial Wire	DEBUG_JTMS-SWDIO	PA13
+RCC	TCXO	RCC_OSC_IN	OSC_IN
+RCC	TCXO	VDDTCXO	PB0-VDD_TCXO
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC32_OUT	PC15-OSC32_OUT
+RTC	Activate RTC Clock Source	RTC_VS_RTC_Activate	VP_RTC_VS_RTC_Activate
+RTC	RTC Enabled	RTC_VS_RTC_Calendar	VP_RTC_VS_RTC_Calendar
+RTC	Internal Alarm A	RTC_VS_RTC_Alarm_A_Intern	VP_RTC_VS_RTC_Alarm_A_Intern
+SUBGHZ	Activated	SUBGHZ_VS_SUBGHZ	VP_SUBGHZ_VS_SUBGHZ
+SYS	None	SYS_VS_None	VP_SYS_VS_None
+USART1	Asynchronous	USART1_RX	PB7
+USART1	Asynchronous	USART1_TX	PB6
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+A4	PA14	DEBUG_JTCK-SWCLK	
+B6	PC14-OSC32_IN	RCC_OSC32_IN	
+B8	PA13	DEBUG_JTMS-SWDIO	
+C1	PB3	GPIO_Output	DBG3
+C2	PB4	GPIO_Output	DBG4
+C3	PB7	USART1_RX	USARTx_RX
+C5	PC15-OSC32_OUT	RCC_OSC32_OUT	
+D2	PB5	GPIO_Output	LED2
+D6	PA0	GPIO_Output	DBG1
+D7	PB13	GPIO_EXTI13	BUT1
+E1	PB6	USART1_TX	USARTx_TX
+F6	PB0-VDD_TCXO	VDDTCXO	
+G9	OSC_IN	RCC_OSC_IN	
+H4	PB10	GPIO_Output	DBG2
+J1	PA4	GPIO_Output	RF_CTRL1
+J2	PA5	GPIO_Output	RF_CTRL2
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : Seeed-LoRa-E5
+Project Folder : C:\Users\danam\STM32CubeIDE\workspace_1.7.0\Seeed-LoRa-E5
+Toolchain / IDE : STM32CubeIDE
+Firmware Package Name and Version : STM32Cube FW_WL V1.1.0
+
+
+Code Generation Settings : 
+STM32Cube MCU packages and embedded software packs : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : Yes
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
