@@ -59,7 +59,7 @@ and
 
 ## Starting a new project
 
-- Use "Start a new project from an existing configuration file"
+- Use "Start a new project from an existing configuration file" and select "Seeed-LoRa-E5.ioc" in the repo
 
 <img width="613" alt="image" src="https://user-images.githubusercontent.com/942815/145850066-bbd75cbc-b373-4332-898d-0140b003da20.png">
 
