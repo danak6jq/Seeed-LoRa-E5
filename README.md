@@ -12,7 +12,7 @@ If you haven't used STM32CubeIDE before, I suggest doing a couple of smaller pro
 
 - LoRaWAN Gateway connected to LoRaWAN Network Server(e.g. TTN; I am using a local gateway and local ChirpStack server)
 
-- Prepare an USB TypeC cable and a ST-LINK. Connect the TypeC cable to the TypeC port for power and serial communication, connect the ST-LINK to the SWD pins like this (recommend connecting nRST as well):
+- Prepare an USB TypeC cable and a ST-LINK. Connect the TypeC cable to the TypeC port for power and serial communication, connect the ST-LINK to the SWD pins like this (recommend connecting Vcc and nRST as well):
 
 ![image](https://user-images.githubusercontent.com/942815/145846356-6c3d4828-18b1-40a3-a6d0-25d979629093.png)
 
