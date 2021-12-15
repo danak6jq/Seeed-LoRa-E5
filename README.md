@@ -63,5 +63,5 @@ and
 
 <img width="613" alt="image" src="https://user-images.githubusercontent.com/942815/145850066-bbd75cbc-b373-4332-898d-0140b003da20.png">
 
-- This creates a new project with no user code (such as contained in the repo code) included. You'll want to refer to the repo code and ST documentation for using their LoRaWAN stack.
+- This creates a new "End client framework" project with no user code (such as contained in the repo code) included. You'll want to refer to the repo code and ST documentation for using their LoRaWAN stack.
 
