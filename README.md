@@ -1,6 +1,11 @@
 # Seeed-LoRa-E5
 LoRaWAN end node built from scratch using STM32CubeIDE/CubeMX for the LoRa-E5 WLE5x
 
+Note: the project defaults to disabling SWD/probe pins and enabling low-power mode. For development with an ST/Link, I recommend enabling the debugger and disabling low-power mode.
+
+<img width="429" alt="image" src="https://user-images.githubusercontent.com/942815/146811232-a0f1dc4a-c3dc-4035-9ad7-c3d2b41e4ae9.png">
+
+
 ## This assumes a general familiarity with STM32CubeIDE and LoRaWAN concepts.
 If you haven't used STM32CubeIDE before, I suggest doing a couple of smaller projects using ST Nucleo boards to familiarize yourself.
 
