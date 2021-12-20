@@ -391,11 +391,11 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
             // Default ChannelsMask
             /* ST_WORKAROUND_BEGIN: Hybrid mode */
 #if ( HYBRID_ENABLED == 1 )
-            RegionNvmGroup2->ChannelsDefaultMask[0] = 0xFF00;
+            RegionNvmGroup2->ChannelsDefaultMask[0] = 0x00FF;
             RegionNvmGroup2->ChannelsDefaultMask[1] = 0x0000;
             RegionNvmGroup2->ChannelsDefaultMask[2] = 0x0000;
             RegionNvmGroup2->ChannelsDefaultMask[3] = 0x0000;
-            RegionNvmGroup2->ChannelsDefaultMask[4] = 0x0002;
+            RegionNvmGroup2->ChannelsDefaultMask[4] = 0x0001;
             RegionNvmGroup2->ChannelsDefaultMask[5] = 0x0000;
 #else
             RegionNvmGroup2->ChannelsDefaultMask[0] = 0xFFFF;

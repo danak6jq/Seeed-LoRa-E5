@@ -1,6 +1,6 @@
 Configuration	Seeed-LoRa-E5
 STM32CubeMX 	6.4.0
-Date	12/07/2021
+Date	12/20/2021
 MCU	STM32WLE5JCIx
 
 

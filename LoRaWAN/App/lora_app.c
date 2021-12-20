@@ -563,6 +563,12 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
     else
     {
       APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = JOIN FAILED\r\n");
+
+      if (joinParams->Mode == ACTIVATION_TYPE_OTAA) {
+          APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = RE-TRYING OTAA JOIN\r\n");
+    	/* re-try the OTAA join */
+    	LmHandlerJoin(ActivationType);
+      }
     }
   }
   /* USER CODE END OnJoinRequest_1 */
