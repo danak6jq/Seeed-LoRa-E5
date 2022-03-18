@@ -1,6 +1,6 @@
 Configuration	Seeed-LoRa-E5
-STM32CubeMX 	6.4.0
-Date	12/20/2021
+STM32CubeMX 	6.5.0
+Date	03/17/2022
 MCU	STM32WLE5JCIx
 
 
@@ -86,7 +86,7 @@ Project Settings :
 Project Name : Seeed-LoRa-E5
 Project Folder : C:\Users\danam\STM32CubeIDE\workspace_1.7.0\Seeed-LoRa-E5
 Toolchain / IDE : STM32CubeIDE
-Firmware Package Name and Version : STM32Cube FW_WL V1.1.0
+Firmware Package Name and Version : STM32Cube FW_WL V1.2.0
 
 
 Code Generation Settings : 

@@ -136,24 +136,28 @@ extern "C" {
 /* USER CODE END EV */
 
 /* Exported macro ------------------------------------------------------------*/
-#if defined (PROBE_PINS_ENABLED) && (PROBE_PINS_ENABLED == 1)
+#if !defined (DISABLE_PROBE_GPIO)
 
-#define PROBE_GPIO_WRITE( gpio, n, x )  HAL_GPIO_WritePin( gpio, n, (GPIO_PinState)(x) )
+/**
+  * @brief Set pin to x value
+  */
+#define PROBE_GPIO_WRITE( gpio, n, x )     HAL_GPIO_WritePin( gpio, n, (GPIO_PinState)(x) )
 
 /**
   * @brief Set pin to high level
   */
-#define PROBE_GPIO_SET_LINE( gpio, n )       LL_GPIO_SetOutputPin( gpio, n )
+#define PROBE_GPIO_SET_LINE( gpio, n )     LL_GPIO_SetOutputPin( gpio, n )
 
 /**
   * @brief Set pin to low level
   */
-#define PROBE_GPIO_RST_LINE( gpio, n )       LL_GPIO_ResetOutputPin ( gpio, n )
+#define PROBE_GPIO_RST_LINE( gpio, n )     LL_GPIO_ResetOutputPin( gpio, n )
 
-/*enabling RTC_OUTPUT should be set via STM32CubeMX GUI because MX_RTC_Init is now entirely generated */
+#else  /* DISABLE_PROBE_GPIO */
 
-#elif defined (PROBE_PINS_ENABLED) && (PROBE_PINS_ENABLED == 0) /* PROBE_PINS_OFF */
-
+/**
+  * @brief not usable
+  */
 #define PROBE_GPIO_WRITE( gpio, n, x )
 
 /**
@@ -166,11 +170,7 @@ extern "C" {
   */
 #define PROBE_GPIO_RST_LINE( gpio, n )
 
-/*disabling RTC_OUTPUT should be set via STM32CubeMX GUI because MX_RTC_Init is now entirely generated */
-
-#else
-#error "PROBE_PINS_ENABLED not defined or out of range <0,1>"
-#endif /* PROBE_PINS_ENABLED */
+#endif /* DISABLE_PROBE_GPIO */
 
 /* USER CODE BEGIN EM */
 
@@ -178,20 +178,9 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 /**
-  * @brief Disable debugger (serial wires pins)
-  */
-void DBG_Disable(void);
-
-/**
-  * @brief Config debugger when working in Low Power Mode
-  * @note  When in Dual Core DbgMcu pins should be better disable only after CM0+ is started
-  */
-void DBG_ConfigForLpm(uint8_t enableDbg);
-
-/**
   * @brief Initializes the SW probes pins and the monitor RF pins via Alternate Function
   */
-void DBG_ProbesInit(void);
+void DBG_Init(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -202,4 +191,3 @@ void DBG_ProbesInit(void);
 #endif
 
 #endif /* __SYS_DEBUG_H__ */
-

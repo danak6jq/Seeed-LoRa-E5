@@ -61,7 +61,7 @@
 #define USE_COM_LOG                         0U
 
 /* IRQ priorities */
-#define BSP_BUTTON_SWx_IT_PRIORITY         15U
+#define BSP_BUTTON_USER_IT_PRIORITY         14U
 
 /**
   * @}
@@ -103,4 +103,3 @@
 #endif
 
 #endif /* STM32WLXX_NUCLEO_CONF_H */
-

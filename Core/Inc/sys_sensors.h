@@ -41,9 +41,9 @@ typedef struct
   float temperature;      /*!< in degC */
   float humidity;         /*!< in % */
   int32_t latitude;       /*!< latitude converted to binary */
-  int32_t longitude ;     /*!< longitude converted to binary */
+  int32_t longitude;      /*!< longitude converted to binary */
   int16_t altitudeGps;    /*!< in m */
-  int16_t altitudeBar ;   /*!< in m * 10 */
+  int16_t altitudeBar;    /*!< in m * 10 */
   /**more may be added*/
   /* USER CODE BEGIN sensor_t */
 
@@ -94,4 +94,3 @@ int32_t EnvSensors_Read(sensor_t *sensor_data);
 #endif
 
 #endif /* __SENSORS_H__ */
-

@@ -64,7 +64,7 @@ extern "C" {
 #define LORAWAN_SWITCH_CLASS_PORT                   3
 
 /*!
- * LoRaWAN default endNode class port
+ * LoRaWAN default class
  */
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
 
@@ -91,6 +91,12 @@ extern "C" {
 #define LORAWAN_DEFAULT_ACTIVATION_TYPE             ACTIVATION_TYPE_OTAA
 
 /*!
+ * LoRaWAN force rejoin even if the NVM context is restored
+ * @note useful only when context management is enabled by CONTEXT_MANAGEMENT_ENABLED
+ */
+#define LORAWAN_FORCE_REJOIN_AT_BOOT                true
+
+/*!
  * User application data buffer size
  */
 #define LORAWAN_APP_DATA_BUFFER_MAX_SIZE            242
@@ -99,15 +105,24 @@ extern "C" {
  * Default Unicast ping slots periodicity
  *
  * \remark periodicity is equal to 2^LORAWAN_DEFAULT_PING_SLOT_PERIODICITY seconds
- *         example: 2^3 = 8 seconds. The end-device will open an Rx slot every 8 seconds.
+ *         example: 2^4 = 16 seconds. The end-device will open an Rx slot every 16 seconds.
  */
 #define LORAWAN_DEFAULT_PING_SLOT_PERIODICITY       4
+
+/*!
+ * Default response timeout for class b and class c confirmed
+ * downlink frames in milli seconds.
+ *
+ * The value shall not be smaller than RETRANSMIT_TIMEOUT plus
+ * the maximum time on air.
+ */
+#define LORAWAN_DEFAULT_CLASS_B_C_RESP_TIMEOUT      8000
 
 /* USER CODE BEGIN EC */
 
 /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
 /* USER CODE END EM */

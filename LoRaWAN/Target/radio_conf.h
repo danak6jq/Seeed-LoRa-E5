@@ -44,15 +44,6 @@ extern "C" {
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
-/**
-  * @brief Set RX pin to high or low level
-  */
-#define DBG_GPIO_RADIO_RX(set_rst) PROBE_GPIO_##set_rst##_LINE(PROBE_LINE1_PORT, PROBE_LINE1_PIN);
-
-/**
-  * @brief Set TX pin to high or low level
-  */
-#define DBG_GPIO_RADIO_TX(set_rst) PROBE_GPIO_##set_rst##_LINE(PROBE_LINE2_PORT, PROBE_LINE2_PIN);
 
 /**
   * @brief drive value used anytime radio is NOT in TX low power mode
@@ -158,4 +149,3 @@ extern "C" {
 #endif
 
 #endif /* __RADIO_CONF_H__*/
-

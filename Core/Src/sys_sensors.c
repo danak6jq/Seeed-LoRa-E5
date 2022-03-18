@@ -20,8 +20,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stdint.h"
+#include "platform.h"
 #include "sys_conf.h"
 #include "sys_sensors.h"
+#if defined (SENSOR_ENABLED) && (SENSOR_ENABLED == 0)
+#include "adc_if.h"
+#endif /* SENSOR_ENABLED */
 
 /* USER CODE BEGIN Includes */
 #if defined (SENSOR_ENABLED) && (SENSOR_ENABLED == 1)
@@ -159,7 +163,7 @@ IKS01A3_ENV_SENSOR_Capabilities_t EnvCapabilities;
 /* USER CODE END PFP */
 
 /* Exported functions --------------------------------------------------------*/
-int32_t  EnvSensors_Read(sensor_t *sensor_data)
+int32_t EnvSensors_Read(sensor_t *sensor_data)
 {
   /* USER CODE BEGIN EnvSensors_Read */
   float HUMIDITY_Value = HUMIDITY_DEFAULT_VAL;
@@ -198,8 +202,15 @@ int32_t  EnvSensors_Read(sensor_t *sensor_data)
   /* USER CODE END EnvSensors_Read */
 }
 
-int32_t  EnvSensors_Init(void)
+int32_t EnvSensors_Init(void)
 {
+#if defined( USE_IKS01A2_ENV_SENSOR_HTS221_0 ) || defined( USE_IKS01A2_ENV_SENSOR_LPS22HB_0 ) || \
+    defined( USE_IKS01A3_ENV_SENSOR_HTS221_0 ) || defined( USE_IKS01A3_ENV_SENSOR_LPS22HH_0 ) || \
+    defined( USE_BSP_DRIVER )
+  int32_t ret = BSP_ERROR_NONE;
+#else
+  int32_t ret = 0;
+#endif /* USE_BSP_DRIVER */
   /* USER CODE BEGIN EnvSensors_Init */
 #if defined (SENSOR_ENABLED) && (SENSOR_ENABLED == 1)
   /* Init */
@@ -253,6 +264,7 @@ int32_t  EnvSensors_Init(void)
 #endif /* SENSOR_ENABLED  */
   return 0;
   /* USER CODE END EnvSensors_Init */
+  return ret;
 }
 
 /* USER CODE BEGIN EF */
@@ -263,4 +275,3 @@ int32_t  EnvSensors_Init(void)
 /* USER CODE BEGIN PrFD */
 
 /* USER CODE END PrFD */
-

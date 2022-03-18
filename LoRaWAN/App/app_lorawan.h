@@ -51,7 +51,7 @@ extern "C" {
 
 /* USER CODE END EM */
 
-/* Exported Functions Prototypes------------------------------------------------------- */
+/* Exported Functions Prototypes ---------------------------------------------*/
 /**
   * @brief  Init Lora Application
   */

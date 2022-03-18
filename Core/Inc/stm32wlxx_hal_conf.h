@@ -335,4 +335,3 @@
 #endif
 
 #endif /* STM32WLxx_HAL_CONF_H */
-

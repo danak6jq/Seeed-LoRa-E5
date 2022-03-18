@@ -99,4 +99,3 @@ uint16_t SYS_GetBatteryLevel(void);
 #endif
 
 #endif /* __ADC_IF_H__ */
-

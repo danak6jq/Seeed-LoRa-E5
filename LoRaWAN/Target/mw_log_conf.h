@@ -70,4 +70,3 @@ extern "C" {
 #endif
 
 #endif /*__MW_LOG_CONF_H__ */
-

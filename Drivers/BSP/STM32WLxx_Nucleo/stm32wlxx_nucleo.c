@@ -8,7 +8,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2020(-2021) STMicroelectronics.
+  * Copyright (c) 2020-2021 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -23,7 +23,7 @@
 
 /** @addtogroup BSP
   * @{
-  */ 
+  */
 
 /** @addtogroup STM32WLXX_NUCLEO
   * @{
@@ -94,7 +94,10 @@ static uint32_t IsComMspCbValid[COMn] = {0};
   * @{
   */
 static void BUTTON_SW1_EXTI_Callback(void);
-
+#if 0	// XXX: omit these functions
+static void BUTTON_SW2_EXTI_Callback(void);
+static void BUTTON_SW3_EXTI_Callback(void);
+#endif
 #if (USE_BSP_COM_FEATURE > 0)
 static void COM1_MspInit(UART_HandleTypeDef *huart);
 static void COM1_MspDeInit(UART_HandleTypeDef *huart);
@@ -106,7 +109,7 @@ static void COM1_MspDeInit(UART_HandleTypeDef *huart);
 
 /** @addtogroup STM32WLXX_NUCLEO_LOW_LEVEL_Exported_Functions
   * @{
-  */ 
+  */
 
 /**
   * @brief  This method returns the STM32WLXX NUCLEO BSP Driver revision
@@ -119,7 +122,7 @@ uint32_t BSP_GetVersion(void)
 
 /** @addtogroup STM32WLXX_NUCLEO_LOW_LEVEL_LED_Functions
   * @{
-  */ 
+  */
 
 /**
   * @brief  Configures LED GPIO.
@@ -268,11 +271,11 @@ int32_t BSP_LED_GetState(Led_TypeDef Led)
 
 /**
   * @}
-  */ 
+  */
 
 /** @addtogroup STM32WLXX_NUCLEO_LOW_LEVEL_BUTTON_Functions
   * @{
-  */ 
+  */
 
 /**
   * @brief  Configures Button GPIO and EXTI Line.
@@ -292,7 +295,7 @@ int32_t BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef ButtonMode)
 {
   GPIO_InitTypeDef gpio_init_structure = {0};
   static BSP_EXTI_LineCallback button_callback[BUTTONn] = {BUTTON_SW1_EXTI_Callback, NULL, NULL};
-  static uint32_t button_interrupt_priority[BUTTONn] = {BSP_BUTTON_SWx_IT_PRIORITY, BSP_BUTTON_SWx_IT_PRIORITY, BSP_BUTTON_SWx_IT_PRIORITY};
+  static uint32_t button_interrupt_priority[BUTTONn] = {BSP_BUTTON_USER_IT_PRIORITY, BSP_BUTTON_USER_IT_PRIORITY, BSP_BUTTON_USER_IT_PRIORITY};
   static const uint32_t button_exti_line[BUTTONn] = {BUTTON_SW1_EXTI_LINE, BUTTON_SW2_EXTI_LINE, BUTTON_SW3_EXTI_LINE};
 
   if (button_callback[Button] == NULL) {
@@ -392,7 +395,7 @@ __weak void BSP_PB_Callback(Button_TypeDef Button)
 
 /**
   * @}
-  */ 
+  */
 
 #if (USE_BSP_COM_FEATURE > 0)
 /** @addtogroup STM32WLXX_NUCLEO_LOW_LEVEL_COM_Functions
@@ -599,7 +602,7 @@ int fputc (int ch, FILE *f)
 #endif /* USE_COM_LOG */
 /**
   * @}
-  */ 
+  */
 #endif /* (USE_BSP_COM_FEATURE > 0) */
 
 /**
@@ -619,6 +622,25 @@ static void BUTTON_SW1_EXTI_Callback(void)
   BSP_PB_Callback(BUTTON_SW1);
 }
 
+#if 0 // XXX: omit these functions
+/**
+  * @brief  Button SW2 EXTI line detection callback.
+  * @retval None
+  */
+static void BUTTON_SW2_EXTI_Callback(void)
+{
+  BSP_PB_Callback(BUTTON_SW2);
+}
+
+/**
+  * @brief  Button SW3 EXTI line detection callback.
+  * @retval None
+  */
+static void BUTTON_SW3_EXTI_Callback(void)
+{
+  BSP_PB_Callback(BUTTON_SW3);
+}
+#endif
 
 #if (USE_BSP_COM_FEATURE > 0)
 /**
@@ -693,6 +715,4 @@ static void COM1_MspDeInit(UART_HandleTypeDef *huart)
 
 /**
   * @}
-  */    
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+  */

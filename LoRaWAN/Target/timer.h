@@ -115,4 +115,3 @@ extern "C" {
 #endif
 
 #endif /* __TIMER_H__*/
-
