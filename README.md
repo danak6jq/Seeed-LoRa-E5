@@ -1,6 +1,8 @@
 # Seeed-LoRa-E5
 LoRaWAN end node built from scratch using STM32CubeIDE/CubeMX for the LoRa-E5 WLE5x
 
+NOTE: I did a quick merge of STM32WLxx V1.2 firmware support. Basic testing shows it works correctly but please let me know if you encounter any issues.
+
 If you're looking for an RAK3172 version of this, have a look at https://github.com/danak6jq/RAK3172
 
 Note: the project defaults to disabling SWD/probe pins and enabling low-power mode. For development with an ST/Link, I recommend enabling the debugger and disabling low-power mode.
