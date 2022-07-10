@@ -29,7 +29,7 @@ If you haven't used STM32CubeIDE before, I suggest doing a couple of smaller pro
 
 <img width="271" alt="image" src="https://user-images.githubusercontent.com/942815/145845362-979a73a7-1e80-4a8b-911a-979d7df967b1.png">
 
-- Do not lose this Device EUI; it is unique for each LoRaWAN device.
+- Do not lose this Device EUI; it is unique for each LoRaWAN device. If you manage to lose the Device EUI, you are able to retrieve it by scanning the QR code on the LoRa-E5 chip using a generic QR code scanner.
 
 # Building the repo
 
