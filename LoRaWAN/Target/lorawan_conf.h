@@ -76,7 +76,7 @@ extern "C" {
   * \note the default channel mask with this option activates the first 8 channels. \
   *       this default mask can be modified in the RegionXXXXXInitDefaults function associated with the active region.
   */
-#define HYBRID_ENABLED                                  1
+#define HYBRID_ENABLED                                  0
 
 /**
   * \brief Define the read access of the keys in memory
