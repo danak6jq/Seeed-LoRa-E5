@@ -1,6 +1,8 @@
 # Seeed-LoRa-E5
 LoRaWAN end node built from scratch using STM32CubeIDE/CubeMX for the LoRa-E5 WLE5x
 
+UPDATE 14 July 2022: I reviewed the V1.2FM merge, enabled LoRaWAN 1.0.4 support (including NV storage of devNonce) and tested in Class A, turning the red LED on and off. I apologize for the flurry of updates in master; future updates will be done properly in a branch.
+
 NOTE: I did a quick merge of STM32WLxx V1.2 firmware support. Basic testing shows it works correctly but please let me know if you encounter any issues.
 
 If you're looking for an RAK3172 version of this, have a look at https://github.com/danak6jq/RAK3172
