@@ -354,13 +354,13 @@ void LoRaWAN_Init(void)
           (uint8_t)(APP_VERSION_SUB2));
 
   /* Get MW LoRaWAN info */
-  APP_LOG(TS_OFF, VLEVEL_M, "MW_LORAWAN_VERSION: V%X.%X.%X\r\n",
+  APP_LOG(TS_OFF, VLEVEL_M, "MW_LORAWAN_VERSION:  V%X.%X.%X\r\n",
           (uint8_t)(LORAWAN_VERSION_MAIN),
           (uint8_t)(LORAWAN_VERSION_SUB1),
           (uint8_t)(LORAWAN_VERSION_SUB2));
 
   /* Get MW SubGhz_Phy info */
-  APP_LOG(TS_OFF, VLEVEL_M, "MW_RADIO_VERSION:   V%X.%X.%X\r\n",
+  APP_LOG(TS_OFF, VLEVEL_M, "MW_RADIO_VERSION:    V%X.%X.%X\r\n",
           (uint8_t)(SUBGHZ_PHY_VERSION_MAIN),
           (uint8_t)(SUBGHZ_PHY_VERSION_SUB1),
           (uint8_t)(SUBGHZ_PHY_VERSION_SUB2));
@@ -419,10 +419,6 @@ void LoRaWAN_Init(void)
   {
     /* USER CODE BEGIN LoRaWAN_Init_3 */
 
-#if 0 // XXX:
-    /* send every time button is pushed */
-    BSP_PB_Init(BUTTON_SW1, BUTTON_MODE_EXTI);
-#endif
     /* USER CODE END LoRaWAN_Init_3 */
   }
 
@@ -441,7 +437,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     	// XXX: always initialized
       if (EventType == TX_ON_EVENT || 1)
       {
-      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
+        UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
       }
       break;
     default:
@@ -476,56 +472,56 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         RxPort = appData->Port;
         if (appData->Buffer != NULL)
         {
-    switch (appData->Port)
-    {
-      case LORAWAN_SWITCH_CLASS_PORT:
-        /*this port switches the class*/
-        if (appData->BufferSize == 1)
-        {
-          switch (appData->Buffer[0])
+          switch (appData->Port)
           {
-            case 0:
-            {
-              LmHandlerRequestClass(CLASS_A);
+            case LORAWAN_SWITCH_CLASS_PORT:
+              /*this port switches the class*/
+              if (appData->BufferSize == 1)
+              {
+                switch (appData->Buffer[0])
+                {
+                  case 0:
+                  {
+                    LmHandlerRequestClass(CLASS_A);
+                    break;
+                  }
+                  case 1:
+                  {
+                    LmHandlerRequestClass(CLASS_B);
+                    break;
+                  }
+                  case 2:
+                  {
+                    LmHandlerRequestClass(CLASS_C);
+                    break;
+                  }
+                  default:
+                    break;
+                }
+              }
               break;
-            }
-            case 1:
-            {
-              LmHandlerRequestClass(CLASS_B);
-              break;
-            }
-            case 2:
-            {
-              LmHandlerRequestClass(CLASS_C);
-              break;
-            }
-            default:
-              break;
-          }
-        }
-        break;
-      case LORAWAN_USER_APP_PORT:
-        if (appData->BufferSize == 1)
-        {
-          AppLedStateOn = appData->Buffer[0] & 0x01;
-          if (AppLedStateOn == RESET)
-          {
-            APP_LOG(TS_OFF, VLEVEL_H,   "LED OFF\r\n");
+            case LORAWAN_USER_APP_PORT:
+              if (appData->BufferSize == 1)
+              {
+                AppLedStateOn = appData->Buffer[0] & 0x01;
+                if (AppLedStateOn == RESET)
+                {
+                  APP_LOG(TS_OFF, VLEVEL_H, "LED OFF\r\n");
                   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_RED */
-          }
-          else
-          {
-            APP_LOG(TS_OFF, VLEVEL_H, "LED ON\r\n");
+                }
+                else
+                {
+                  APP_LOG(TS_OFF, VLEVEL_H, "LED ON\r\n");
                   HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_RED */
+                }
+              }
+              break;
+
+            default:
+
+              break;
           }
         }
-        break;
-
-      default:
-
-        break;
-    }
-  }
       }
     }
     if (params->RxSlot < RX_SLOT_NONE)
@@ -635,9 +631,9 @@ static void SendTxData(void)
   {
     nextTxIn = LmHandlerGetDutyCycleWaitTime();
     if (nextTxIn > 0)
-  {
-    APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
-  }
+    {
+      APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
+    }
   }
 
   if (EventType == TX_ON_TIMER)

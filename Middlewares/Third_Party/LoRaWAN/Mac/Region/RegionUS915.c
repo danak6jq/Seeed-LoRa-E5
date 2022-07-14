@@ -51,7 +51,7 @@
 /* The HYBRID_DEFAULT_MASKx define the enabled channels in Hybrid mode*/
 /* Note: they can be redefined in lorawan_conf.h*/
 #ifndef HYBRID_DEFAULT_MASK0 /*enabled channels from channel 15 down to channel 0*/
-#define HYBRID_DEFAULT_MASK0 0x00FF00 /*channel 7 down to channel 0  enabled*/
+#define HYBRID_DEFAULT_MASK0 0x00FF /*channel 7 down to channel 0  enabled*/
 #endif
 #ifndef HYBRID_DEFAULT_MASK1 /*enabled channels from channel 31 down to channel 16*/
 #define HYBRID_DEFAULT_MASK1 0x0000

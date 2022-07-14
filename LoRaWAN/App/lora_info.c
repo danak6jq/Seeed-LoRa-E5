@@ -5,7 +5,7 @@
   * @author  MCD Application Team
   * @brief   To give info to the application about LoRaWAN configuration
   ******************************************************************************
-    * @attention
+  * @attention
   *
   * Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.
