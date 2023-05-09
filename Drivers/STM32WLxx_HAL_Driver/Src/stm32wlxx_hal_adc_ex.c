@@ -125,9 +125,9 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef *hadc)
                       HAL_ADC_STATE_REG_BUSY,
                       HAL_ADC_STATE_BUSY_INTERNAL);
 
-    /* Manage settings impacting calibration */
-    /* - Disable ADC mode auto power-off */
-    /* - Disable ADC DMA transfer request during calibration */
+    /* Manage settings impacting calibration                                  */
+    /* - Disable ADC mode auto power-off                                      */
+    /* - Disable ADC DMA transfer request during calibration                  */
     /* Note: Specificity of this STM32 series: Calibration factor is          */
     /*       available in data register and also transferred by DMA.          */
     /*       To not insert ADC calibration factor among ADC conversion data   */
@@ -166,6 +166,12 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef *hadc)
     calibration_factor_accumulated /= calibration_index;
     /* Apply calibration factor */
     LL_ADC_Enable(hadc->Instance);
+
+    /* add this block of code */
+    while (!LL_ADC_IsActiveFlag_ADRDY(hadc->Instance))  // XXX:
+        /* spin */;                                     // XXX:
+    LL_ADC_ClearFlag_ADRDY(hadc->Instance);             // XXX:
+
     LL_ADC_SetCalibrationFactor(hadc->Instance, calibration_factor_accumulated);
     LL_ADC_Disable(hadc->Instance);
 

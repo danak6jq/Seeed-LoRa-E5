@@ -81,6 +81,7 @@ void Error_Handler(void);
 #define RF_CTRL1_GPIO_Port GPIOA
 #define RF_CTRL2_Pin GPIO_PIN_5
 #define RF_CTRL2_GPIO_Port GPIOA
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -25,12 +25,11 @@
 #include "stm32_seq.h"
 #include "stm32_timer.h"
 #include "utilities_def.h"
-#include "lora_app_version.h"
+#include "app_version.h"
 #include "lorawan_version.h"
 #include "subghz_phy_version.h"
 #include "lora_info.h"
 #include "LmHandler.h"
-#include "stm32_lpm.h"
 #include "adc_if.h"
 #include "CayenneLpp.h"
 #include "sys_sensors.h"
@@ -86,7 +85,7 @@ typedef enum TxEventType_e
   * @brief LoRaWAN NVM Flash address
   * @note last 2 sector of a 128kBytes device
   */
-#define LORAWAN_NVM_BASE_ADDRESS                    ((uint32_t)0x0803F000UL)
+#define LORAWAN_NVM_BASE_ADDRESS                    ((void *)0x0803F000UL)
 
 /* USER CODE BEGIN PD */
 static const char *slotStrings[] = { "1", "2", "C", "C_MC", "P", "P_MC" };
@@ -134,6 +133,11 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
   * @param params status of Last Beacon
   */
 static void OnBeaconStatusChange(LmHandlerBeaconParams_t *params);
+
+/**
+  * @brief callback when system time has been updated
+  */
+static void OnSysTimeUpdate(void);
 
 /**
   * @brief callback when LoRaWAN application Class is changed
@@ -260,6 +264,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
   .OnTxData =                     OnTxData,
   .OnRxData =                     OnRxData,
   .OnBeaconStatusChange =         OnBeaconStatusChange,
+  .OnSysTimeUpdate =              OnSysTimeUpdate,
   .OnClassChange =                OnClassChange,
   .OnTxPeriodicityChanged =       OnTxPeriodicityChanged,
   .OnTxFrameCtrlChanged =         OnTxFrameCtrlChanged,
@@ -277,6 +282,7 @@ static LmHandlerParams_t LmHandlerParams =
   .AdrEnable =                LORAWAN_ADR_STATE,
   .IsTxConfirmed =            LORAWAN_DEFAULT_CONFIRMED_MSG_STATE,
   .TxDatarate =               LORAWAN_DEFAULT_DATA_RATE,
+  .TxPower =                  LORAWAN_DEFAULT_TX_POWER,
   .PingSlotPeriodicity =      LORAWAN_DEFAULT_PING_SLOT_PERIODICITY,
   .RxBCTimeout =              LORAWAN_DEFAULT_CLASS_B_C_RESP_TIMEOUT
 };
@@ -788,6 +794,13 @@ static void OnBeaconStatusChange(LmHandlerBeaconParams_t *params)
   /* USER CODE END OnBeaconStatusChange_1 */
 }
 
+static void OnSysTimeUpdate(void)
+{
+  /* USER CODE BEGIN OnSysTimeUpdate_1 */
+
+  /* USER CODE END OnSysTimeUpdate_1 */
+}
+
 static void OnClassChange(DeviceClass_t deviceClass)
 {
   /* USER CODE BEGIN OnClassChange_1 */
@@ -969,13 +982,9 @@ static void OnStoreContextRequest(void *nvm, uint32_t nvm_size)
 
   /* USER CODE END OnStoreContextRequest_1 */
   /* store nvm in flash */
-  if (HAL_FLASH_Unlock() == HAL_OK)
+  if (FLASH_IF_Erase(LORAWAN_NVM_BASE_ADDRESS, FLASH_PAGE_SIZE) == FLASH_IF_OK)
   {
-    if (FLASH_IF_EraseByPages(PAGE(LORAWAN_NVM_BASE_ADDRESS), 1, 0U) == FLASH_OK)
-    {
-      FLASH_IF_Write(LORAWAN_NVM_BASE_ADDRESS, (uint8_t *)nvm, nvm_size, NULL);
-    }
-    HAL_FLASH_Lock();
+    FLASH_IF_Write(LORAWAN_NVM_BASE_ADDRESS, (const void *)nvm, nvm_size);
   }
   /* USER CODE BEGIN OnStoreContextRequest_Last */
 
@@ -987,7 +996,7 @@ static void OnRestoreContextRequest(void *nvm, uint32_t nvm_size)
   /* USER CODE BEGIN OnRestoreContextRequest_1 */
 
   /* USER CODE END OnRestoreContextRequest_1 */
-  UTIL_MEM_cpy_8(nvm, (void *)LORAWAN_NVM_BASE_ADDRESS, nvm_size);
+  FLASH_IF_Read(nvm, LORAWAN_NVM_BASE_ADDRESS, nvm_size);
   /* USER CODE BEGIN OnRestoreContextRequest_Last */
 
   /* USER CODE END OnRestoreContextRequest_Last */
