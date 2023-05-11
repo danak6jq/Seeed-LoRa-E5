@@ -1,6 +1,6 @@
 Configuration	Seeed-LoRa-E5
-STM32CubeMX 	6.6.1
-Date	07/14/2022
+STM32CubeMX 	6.8.1
+Date	05/09/2023
 MCU	STM32WLE5JCIx
 
 
@@ -8,8 +8,6 @@ MCU	STM32WLE5JCIx
 PERIPHERALS	MODES	FUNCTIONS	PINS
 ADC	Single-ended	ADC_TempSens_Input	VP_ADC_TempSens_Input
 ADC	Vrefint Channel	ADC_Vref_Input	VP_ADC_Vref_Input
-DEBUG	Serial Wire	DEBUG_JTCK-SWCLK	PA14
-DEBUG	Serial Wire	DEBUG_JTMS-SWDIO	PA13
 RCC	TCXO	RCC_OSC_IN	OSC_IN
 RCC	TCXO	VDDTCXO	PB0-VDD_TCXO
 RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
@@ -25,9 +23,7 @@ USART1	Asynchronous	USART1_TX	PB6
 
 
 Pin Nb	PINs	FUNCTIONs	LABELs
-A4	PA14	DEBUG_JTCK-SWCLK	
 B6	PC14-OSC32_IN	RCC_OSC32_IN	
-B8	PA13	DEBUG_JTMS-SWDIO	
 C1	PB3	GPIO_Output	DBG3
 C2	PB4	GPIO_Output	DBG4
 C3	PB7	USART1_RX	USARTx_RX
@@ -44,8 +40,6 @@ J2	PA5	GPIO_Output	RF_CTRL2
 PERIPHERALS	MODES	FUNCTIONS	PINS
 ADC	Single-ended	ADC_TempSens_Input	VP_ADC_TempSens_Input
 ADC	Vrefint Channel	ADC_Vref_Input	VP_ADC_Vref_Input
-DEBUG	Serial Wire	DEBUG_JTCK-SWCLK	PA14
-DEBUG	Serial Wire	DEBUG_JTMS-SWDIO	PA13
 RCC	TCXO	RCC_OSC_IN	OSC_IN
 RCC	TCXO	VDDTCXO	PB0-VDD_TCXO
 RCC	Crystal/Ceramic Resonator	RCC_OSC32_IN	PC14-OSC32_IN
@@ -61,9 +55,7 @@ USART1	Asynchronous	USART1_TX	PB6
 
 
 Pin Nb	PINs	FUNCTIONs	LABELs
-A4	PA14	DEBUG_JTCK-SWCLK	
 B6	PC14-OSC32_IN	RCC_OSC32_IN	
-B8	PA13	DEBUG_JTMS-SWDIO	
 C1	PB3	GPIO_Output	DBG3
 C2	PB4	GPIO_Output	DBG4
 C3	PB7	USART1_RX	USARTx_RX
@@ -84,9 +76,9 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : Seeed-LoRa-E5
-Project Folder : C:\Users\danam\STM32CubeIDE\workspace_1.7.0\Seeed-LoRa-E5
+Project Folder : /home/dana/STM32CubeIDE/workspace_1.12.1/Seeed-LoRa-E5
 Toolchain / IDE : STM32CubeIDE
-Firmware Package Name and Version : STM32Cube FW_WL V1.2.0
+Firmware Package Name and Version : STM32Cube FW_WL V1.3.0
 
 
 Code Generation Settings : 
