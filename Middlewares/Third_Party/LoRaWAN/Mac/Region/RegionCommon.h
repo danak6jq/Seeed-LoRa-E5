@@ -105,7 +105,7 @@ extern "C"
  * In milliseconds.
  */
 #define REGION_COMMON_DEFAULT_ACK_TIMEOUT_RND           1000
-#elif (defined( REGION_VERSION ) && ( REGION_VERSION == 0x02010001 ))
+#elif (defined( REGION_VERSION ) && (( REGION_VERSION == 0x02010001 ) || ( REGION_VERSION == 0x02010003 )))
 /*!
  * Retransmission timeout for ACK in milliseconds.
  */
@@ -307,7 +307,7 @@ typedef struct sRegionCommonIdentifyChannelsParam
     /*!
      * Elapsed time since the start of the node.
      */
-    SysTime_t ElapsedTimeSinceStartUp;
+    SysTime_t ElapsedTimeSinceTxBackoffRefTime;
     /*!
      * Joined Set to true, if the last uplink was a join request
      */

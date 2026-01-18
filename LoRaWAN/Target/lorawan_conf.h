@@ -7,7 +7,7 @@
   ******************************************************************************
     * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -53,10 +53,7 @@ extern "C" {
 
 /*!
  * @brief LoRaWAN version definition
- * @note  possible values:
- *        - 0x01000300: Link Layer(L2) v1.0.3 + Regional Parameters(RP) v1.0.3
- *        - 0x01000400: Link Layer TS001-1.0.4 + Regional Parameters RP002-1.0.1
- *        - 0x01010100: soon available ...
+ * @note  0x01000400: Link Layer TS001-1.0.4 + Regional Parameters RP002-1.0.1
  */
 #define LORAMAC_SPECIFICATION_VERSION                   0x01000400
 
@@ -69,7 +66,7 @@ extern "C" {
  *  - Firmware Management Protocol (Package ID: 4, Default Port: 203)
  *  The Certification Protocol is also defined as a mandatory package (Package ID: 0, Default Port: 224)
  */
-#define LORAWAN_DATA_DISTRIB_MGT                        0
+#define LORAWAN_DATA_DISTRIB_MGT                        1
 
 /*!
  * @brief LoRaWAN packages version
@@ -84,7 +81,7 @@ extern "C" {
  *             - Fragmented Data Block Transport v2.0.0
  *             - Firmware Management Protocol v1.0.0
  */
-#define LORAWAN_PACKAGES_VERSION                        1
+#define LORAWAN_PACKAGES_VERSION                        2
 
 /* Region ------------------------------------*/
 /* the region listed here will be linked in the MW code */
@@ -108,6 +105,9 @@ extern "C" {
  *        - CHANNEL_PLAN_GROUP_AS923_3    (Freq offset = -6.60 MHz / Freq range = 915-928MHz)
  *        - CHANNEL_PLAN_GROUP_AS923_4    (Freq offset = -5.90 MHz / Freq range = 917-920MHz)
  *        - CHANNEL_PLAN_GROUP_AS923_1_JP (Freq offset = 0.0 MHz   / Freq range = 920.6-923.4MHz)
+ *        - CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT 	(RP02-1.0.3)
+ *        - CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_DC 		(RP02-1.0.3)
+ *        - CHANNEL_PLAN_GROUP_AS923_1_JP_CH33_CH61_LBT_DC 	(RP02-1.0.3)
  */
 #define REGION_AS923_DEFAULT_CHANNEL_PLAN              CHANNEL_PLAN_GROUP_AS923_1
 

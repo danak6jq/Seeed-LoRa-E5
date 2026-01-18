@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -216,23 +216,7 @@ static void OnSystemReset(void);
 
 /* USER CODE BEGIN PFP */
 
-/**
-  * @brief  LED Tx timer callback function
-  * @param  context ptr of LED context
-  */
-static void OnTxTimerLedEvent(void *context);
 
-/**
-  * @brief  LED Rx timer callback function
-  * @param  context ptr of LED context
-  */
-static void OnRxTimerLedEvent(void *context);
-
-/**
-  * @brief  LED Join timer callback function
-  * @param  context ptr of LED context
-  */
-static void OnJoinTimerLedEvent(void *context);
 
 /* USER CODE END PFP */
 
@@ -324,19 +308,9 @@ static LmHandlerAppData_t AppData = { 0, 0, AppDataBuffer };
 static uint8_t AppLedStateOn = RESET;
 
 /**
-  * @brief Timer to handle the application Tx Led to toggle
+  * Temp buffer to store a FLASH page in RAM when partial replacement is needed
   */
-static UTIL_TIMER_Object_t TxLedTimer;
-
-/**
-  * @brief Timer to handle the application Rx Led to toggle
-  */
-static UTIL_TIMER_Object_t RxLedTimer;
-
-/**
-  * @brief Timer to handle the application Join Led to toggle
-  */
-static UTIL_TIMER_Object_t JoinLedTimer;
+static uint8_t FLASH_RAM_buffer[FLASH_IF_BUFFER_SIZE];
 
 /* USER CODE END PV */
 
@@ -386,9 +360,10 @@ void LoRaWAN_Init(void)
           (uint8_t)(feature_version >> 8),
           (uint8_t)(feature_version));
 
-  UTIL_TIMER_Create(&TxLedTimer, LED_PERIOD_TIME, UTIL_TIMER_ONESHOT, OnTxTimerLedEvent, NULL);
-  UTIL_TIMER_Create(&RxLedTimer, LED_PERIOD_TIME, UTIL_TIMER_ONESHOT, OnRxTimerLedEvent, NULL);
-  UTIL_TIMER_Create(&JoinLedTimer, LED_PERIOD_TIME, UTIL_TIMER_PERIODIC, OnJoinTimerLedEvent, NULL);
+  if (FLASH_IF_Init(FLASH_RAM_buffer) != FLASH_IF_OK)
+  {
+    Error_Handler();  // XXX: improve this
+  }
 
   /* USER CODE END LoRaWAN_Init_1 */
 
@@ -409,7 +384,7 @@ void LoRaWAN_Init(void)
   LmHandlerConfigure(&LmHandlerParams);
 
   /* USER CODE BEGIN LoRaWAN_Init_2 */
-  UTIL_TIMER_Start(&JoinLedTimer);
+
 
   /* USER CODE END LoRaWAN_Init_2 */
 
@@ -435,21 +410,29 @@ void LoRaWAN_Init(void)
 
 /* USER CODE BEGIN PB_Callbacks */
 
+#if 0 /* User should remove the #if 0 statement and adapt the below code according with his needs*/
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   switch (GPIO_Pin)
   {
     case  BUT1_Pin:
-    	// XXX: always initialized
-      if (EventType == TX_ON_EVENT || 1)
+      /* Note: when "EventType == TX_ON_TIMER" this GPIO is not initialized */
+      if (EventType == TX_ON_EVENT)
       {
         UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
       }
+      break;
+    case  BUT2_Pin:
+      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStopJoinEvent), CFG_SEQ_Prio_0);
+      break;
+    case  BUT3_Pin:
+      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStoreContextEvent), CFG_SEQ_Prio_0);
       break;
     default:
       break;
   }
 }
+#endif
 
 /* USER CODE END PB_Callbacks */
 
@@ -465,11 +448,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
   if (params != NULL)
   {
-#if 0   // XXX:
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_BLUE */
-#endif
 
-    UTIL_TIMER_Start(&RxLedTimer);
 
     if (params->IsMcpsIndication)
     {
@@ -513,12 +492,12 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
                 if (AppLedStateOn == RESET)
                 {
                   APP_LOG(TS_OFF, VLEVEL_H, "LED OFF\r\n");
-                  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_RED */
+
                 }
                 else
                 {
                   APP_LOG(TS_OFF, VLEVEL_H, "LED ON\r\n");
-                  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_RED */
+
                 }
               }
               break;
@@ -533,7 +512,8 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     if (params->RxSlot < RX_SLOT_NONE)
     {
       APP_LOG(TS_OFF, VLEVEL_H, "###### D/L FRAME:%04d | PORT:%d | DR:%d | SLOT:%s | RSSI:%d | SNR:%d\r\n",
-              params->DownlinkCounter, RxPort, params->Datarate, slotStrings[params->RxSlot], params->Rssi, params->Snr);
+              params->DownlinkCounter, RxPort, params->Datarate, slotStrings[params->RxSlot],
+              params->Rssi, params->Snr);
     }
   }
   /* USER CODE END OnRxData_1 */
@@ -547,6 +527,8 @@ static void SendTxData(void)
   sensor_t sensor_data;
   UTIL_TIMER_Time_t nextTxIn = 0;
 
+  if (LmHandlerIsBusy() == false)
+  {
 #ifdef CAYENNE_LPP
   uint8_t channel = 0;
 #else
@@ -620,13 +602,7 @@ static void SendTxData(void)
   AppData.BufferSize = i;
 #endif /* CAYENNE_LPP */
 
-  if ((JoinLedTimer.IsRunning) && (LmHandlerJoinStatus() == LORAMAC_HANDLER_SET))
-  {
-    UTIL_TIMER_Stop(&JoinLedTimer);
-#if 0   // XXX:
-    HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET); /* LED_RED */
-#endif
-  }
+
 
   status = LmHandlerSend(&AppData, LmHandlerParams.IsTxConfirmed, false);
   if (LORAMAC_HANDLER_SUCCESS == status)
@@ -640,6 +616,7 @@ static void SendTxData(void)
     {
       APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
     }
+  }
   }
 
   if (EventType == TX_ON_TIMER)
@@ -667,26 +644,7 @@ static void OnTxTimerEvent(void *context)
 }
 
 /* USER CODE BEGIN PrFD_LedEvents */
-static void OnTxTimerLedEvent(void *context)
-{
-#if 0	// XXX: No LED available
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_GREEN */
-#endif
-}
 
-static void OnRxTimerLedEvent(void *context)
-{
-#if 0   // XXX: No LED available
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
-#endif
-}
-
-static void OnJoinTimerLedEvent(void *context)
-{
-#if 0   // XXX: No LED available
-  HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin); /* LED_RED */
-#endif
-}
 
 /* USER CODE END PrFD_LedEvents */
 
@@ -698,10 +656,7 @@ static void OnTxData(LmHandlerTxParams_t *params)
     /* Process Tx event only if its a mcps response to prevent some internal events (mlme) */
     if (params->IsMcpsConfirm != 0)
     {
-#if 0	// XXX: No LED available
-      HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_GREEN */
-#endif
-      UTIL_TIMER_Start(&TxLedTimer);
+
 
       APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### ========== MCPS-Confirm =============\r\n");
       APP_LOG(TS_OFF, VLEVEL_H, "###### U/L FRAME:%04d | PORT:%d | DR:%d | PWR:%d", params->UplinkCounter,
@@ -730,10 +685,7 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
     {
       UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStoreContextEvent), CFG_SEQ_Prio_0);
 
-      UTIL_TIMER_Stop(&JoinLedTimer);
-#if 0   // XXX:
-      HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET); /* LED_RED */
-#endif
+
 
       APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = JOINED = ");
       if (joinParams->Mode == ACTIVATION_TYPE_ABP)
@@ -881,11 +833,7 @@ static void OnSystemReset(void)
 static void StopJoin(void)
 {
   /* USER CODE BEGIN StopJoin_1 */
-#if 0   // XXX: No LED available
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET); /* LED_BLUE */
-  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET); /* LED_RED */
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET); /* LED_GREEN */
-#endif
+
 
   /* USER CODE END StopJoin_1 */
 
@@ -928,11 +876,7 @@ static void OnStopJoinTimerEvent(void *context)
     UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStopJoinEvent), CFG_SEQ_Prio_0);
   }
   /* USER CODE BEGIN OnStopJoinTimerEvent_Last */
-#if 0   // XXX: No LED available
-  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET); /* LED_BLUE */
-  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_RESET); /* LED_RED */
-  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET); /* LED_GREEN */
-#endif
+
   /* USER CODE END OnStopJoinTimerEvent_Last */
 }
 
@@ -981,11 +925,8 @@ static void OnStoreContextRequest(void *nvm, uint32_t nvm_size)
   /* USER CODE BEGIN OnStoreContextRequest_1 */
 
   /* USER CODE END OnStoreContextRequest_1 */
-  /* store nvm in flash */
-  if (FLASH_IF_Erase(LORAWAN_NVM_BASE_ADDRESS, FLASH_PAGE_SIZE) == FLASH_IF_OK)
-  {
-    FLASH_IF_Write(LORAWAN_NVM_BASE_ADDRESS, (const void *)nvm, nvm_size);
-  }
+  FLASH_IF_Write(LORAWAN_NVM_BASE_ADDRESS, (const void *)nvm, nvm_size);
+
   /* USER CODE BEGIN OnStoreContextRequest_Last */
 
   /* USER CODE END OnStoreContextRequest_Last */

@@ -263,9 +263,20 @@ UTIL_TIMER_Time_t UTIL_TIMER_GetCurrentTime(void);
   * @brief return the elapsed time
   *
   * @param past a value returned by the function UTIL_TIMER_GetCurrentTime
-  * @retval elasped time value
+  * @retval elapsed time value
   */
 UTIL_TIMER_Time_t UTIL_TIMER_GetElapsedTime(UTIL_TIMER_Time_t past );
+
+/**
+  * @brief return the list of the current timer
+  *
+  * @retval pointer on @ref UTIL_TIMER_Object_t
+  *
+  * @Note : the use of this function is dangerous and must be done with precaution, the risks are:
+  *         1 - an update of this data structure may affect the operation of timer server
+  *         2 - data structure is moving according the events, so read must be under critical section
+  */
+UTIL_TIMER_Object_t *UTIL_TIMER_GetTimerList(void);
 
 /**
  * @brief Timer IRQ event handler

@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -39,7 +39,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 #define APP_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define APP_VERSION_SUB1   (0x03U) /*!< [23:16] sub1 version */
+#define APP_VERSION_SUB1   (0x04U) /*!< [23:16] sub1 version */
 #define APP_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 #define APP_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
 

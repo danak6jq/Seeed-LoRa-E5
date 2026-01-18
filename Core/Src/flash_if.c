@@ -101,15 +101,6 @@ static FLASH_IF_StatusTypedef FLASH_IF_INT_Read(void *pDestination, const void *
 static FLASH_IF_StatusTypedef FLASH_IF_INT_Erase(void *pStart, uint32_t uLength);
 
 /**
-  * @brief This function checks if part of Flash is empty
-  *
-  * @param pStart flash address to check
-  * @param uLength number of bytes to check. It has to be 8 bytes aligned.
-  * @return int32_t FLASH_IF_MEM_EMPTY or FLASH_IF_MEM_NOT_EMPTY
-  */
-static int32_t FLASH_IF_INT_IsEmpty(void *pStart, uint32_t uLength);
-
-/**
   * @brief  Clear error flags raised during previous operation
   *
   * @retval FLASH_IF_StatusTypedef status
@@ -222,6 +213,7 @@ static FLASH_IF_StatusTypedef FLASH_IF_INT_Write(void *pDestination, const void 
   uint32_t current_dest;
   uint32_t current_source;
   uint32_t current_length;
+  volatile uint64_t data = 0;
 
   if ((pDestination == NULL) || (pSource == NULL) || !IS_ADDR_ALIGNED_64BITS(uLength)
       || !IS_ADDR_ALIGNED_64BITS((uint32_t)pDestination))
@@ -248,47 +240,44 @@ static FLASH_IF_StatusTypedef FLASH_IF_INT_Write(void *pDestination, const void 
       for (page_index = start_page_index; page_index < (start_page_index + number_pages); page_index++)
       {
         page_address = page_index * FLASH_PAGE_SIZE + FLASH_BASE;
-        if (FLASH_IF_INT_IsEmpty(pDestination, length) != FLASH_IF_MEM_EMPTY)
+        if (pAllocatedBuffer == NULL)
         {
-          if (pAllocatedBuffer == NULL)
-          {
-            ret_status = FLASH_IF_PARAM_ERROR;
-            break; /* exit for loop */
-          }
-
-          /* backup initial Flash page data in RAM area */
-          FLASH_IF_INT_Read(pAllocatedBuffer, (const void *)page_address, FLASH_PAGE_SIZE);
-          /* copy fragment into RAM area */
-          UTIL_MEM_cpy_8(&pAllocatedBuffer[uDest % FLASH_PAGE_SIZE], (const void *)uSource, length);
-
-          /*  erase the Flash sector, to avoid writing twice in RAM */
-          if (FLASH_IF_INT_Erase((void *)page_address, FLASH_PAGE_SIZE) != FLASH_IF_OK)
-          {
-            ret_status = FLASH_IF_ERASE_ERROR;
-            break; /* exit for loop */
-          }
-
-          /* copy the whole flash sector including fragment from RAM to Flash */
-          current_dest = page_address;
-          current_source = (uint32_t)pAllocatedBuffer;
-          current_length = FLASH_PAGE_SIZE;
+          ret_status = FLASH_IF_PARAM_ERROR;
+          break; /* exit for loop */
         }
-        else
+
+        /* backup initial Flash page data in RAM area */
+        FLASH_IF_INT_Read(pAllocatedBuffer, (const void *)page_address, FLASH_PAGE_SIZE);
+        /* copy fragment into RAM area */
+        UTIL_MEM_cpy_8(&pAllocatedBuffer[uDest % FLASH_PAGE_SIZE], (const void *)uSource, length);
+
+        /*  erase the Flash sector, to avoid writing twice in RAM */
+        if (FLASH_IF_INT_Erase((void *)page_address, FLASH_PAGE_SIZE) != FLASH_IF_OK)
         {
-          /* write a part of flash page from selected source data */
-          current_dest = uDest;
-          current_source = uSource;
-          current_length = length;
+          ret_status = FLASH_IF_ERASE_ERROR;
+          break; /* exit for loop */
+        }
+
+        /* copy the whole flash sector including fragment from RAM to Flash */
+        current_dest = page_address;
+        current_source = (uint32_t)pAllocatedBuffer;
+        current_length = FLASH_PAGE_SIZE;
+
+          /* Unlock back the Flash */
+        if (HAL_OK != HAL_FLASH_Unlock())
+        {
+          ret_status = FLASH_IF_LOCK_ERROR;
         }
 
         for (address_offset = 0U; address_offset < current_length; address_offset += 8U)
         {
+          data = (uint64_t)(*(uint32_t*)(current_source + address_offset));
+          data |= ((uint64_t)(*(uint32_t*)(current_source + sizeof(current_source) + address_offset)) << 32U);
           /* Device voltage range supposed to be [2.7V to 3.6V], the operation will be done by word */
-          if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, current_dest,
-                                *((uint64_t *)(current_source + address_offset))) == HAL_OK)
+          if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, current_dest, data) == HAL_OK)
           {
             /* Check the written value */
-            if (*(uint64_t *)current_dest != *(uint64_t *)(current_source + address_offset))
+            if ( ((uint64_t)(*(uint32_t*)(current_dest)) | ((uint64_t)(*(uint32_t*)(current_dest + sizeof(current_dest))) << 32U)) != data)
             {
               /* Flash content doesn't match SRAM content */
               ret_status = FLASH_IF_WRITE_ERROR;
@@ -400,28 +389,6 @@ static FLASH_IF_StatusTypedef FLASH_IF_INT_Erase(void *pStart, uint32_t uLength)
 
   /* USER CODE END FLASH_IF_INT_Erase_2 */
   return ret_status;
-}
-
-static int32_t FLASH_IF_INT_IsEmpty(void *pStart, uint32_t uLength)
-{
-  int32_t status = FLASH_IF_MEM_EMPTY;
-  /* USER CODE BEGIN FLASH_IF_INT_IsEmpty_1 */
-
-  /* USER CODE END FLASH_IF_INT_IsEmpty_1 */
-  uint32_t index;
-  for (index = 0; index < uLength; index += 8)
-  {
-    if (*(uint64_t *)pStart != UINT64_MAX)
-    {
-      status = FLASH_IF_MEM_NOT_EMPTY;
-      break;
-    }
-    pStart = (void *)((uint32_t)pStart + 8U);
-  }
-  /* USER CODE BEGIN FLASH_IF_INT_IsEmpty_2 */
-
-  /* USER CODE END FLASH_IF_INT_IsEmpty_2 */
-  return status;
 }
 
 static FLASH_IF_StatusTypedef FLASH_IF_INT_Clear_Error(void)

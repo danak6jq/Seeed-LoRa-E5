@@ -83,33 +83,16 @@ void DBG_Init(void)
 #error "DEBUGGER_ENABLED not defined or out of range <0,1>"
 #endif /* DEBUGGER_OFF */
 
+#if (DEBUG_SUBGHZSPI_MONITORING_ENABLED == 1) || \
+    (DEBUG_RF_NRESET_ENABLED == 1) || \
+    (DEBUG_RF_HSE32RDY_ENABLED == 1) || \
+    (DEBUG_RF_SMPSRDY_ENABLED == 1) || \
+    (DEBUG_RF_LDORDY_ENABLED == 1) || \
+    (DEBUG_RF_DTB1_ENABLED == 1) || \
+    (DEBUG_RF_BUSY_ENABLED == 1)
   GPIO_InitTypeDef  GPIO_InitStruct = {0};
+#endif
 
-  /* Configure the GPIO pin */
-  GPIO_InitStruct.Mode   = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull   = GPIO_NOPULL;
-  GPIO_InitStruct.Speed  = GPIO_SPEED_FREQ_VERY_HIGH;
-
-  /* Enable the GPIO Clock */
-  PROBE_LINE1_CLK_ENABLE();
-  PROBE_LINE2_CLK_ENABLE();
-  PROBE_LINE3_CLK_ENABLE();
-  PROBE_LINE4_CLK_ENABLE();
-
-  GPIO_InitStruct.Pin    = PROBE_LINE1_PIN;
-  HAL_GPIO_Init(PROBE_LINE1_PORT, &GPIO_InitStruct);
-  GPIO_InitStruct.Pin    = PROBE_LINE2_PIN;
-  HAL_GPIO_Init(PROBE_LINE2_PORT, &GPIO_InitStruct);
-  GPIO_InitStruct.Pin    = PROBE_LINE3_PIN;
-  HAL_GPIO_Init(PROBE_LINE3_PORT, &GPIO_InitStruct);
-  GPIO_InitStruct.Pin    = PROBE_LINE4_PIN;
-  HAL_GPIO_Init(PROBE_LINE4_PORT, &GPIO_InitStruct);
-
-  /* Reset probe Pins */
-  HAL_GPIO_WritePin(PROBE_LINE1_PORT, PROBE_LINE1_PIN, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(PROBE_LINE2_PORT, PROBE_LINE2_PIN, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(PROBE_LINE3_PORT, PROBE_LINE3_PIN, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(PROBE_LINE4_PORT, PROBE_LINE4_PIN, GPIO_PIN_RESET);
   /* USER CODE BEGIN DBG_Init_2 */
 
   /* USER CODE END DBG_Init_2 */

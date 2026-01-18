@@ -1125,10 +1125,11 @@ typedef struct sLoRaMacNvmDataGroup2
      * Aggregated duty cycle management
      */
     uint16_t AggregatedDCycle;
-    /*!
+	/*!
      * Stores the time at LoRaMac initialization.
+	 * This value is no more used as defined by the LoRaWAN Specification v1.0.4.
      *
-     * \remark Used for the BACKOFF_DC computation.
+     * \remark Taken in the structure only for Backward compatibility.
      */
     SysTime_t InitializationTime;
     /*!

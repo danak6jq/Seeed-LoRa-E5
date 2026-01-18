@@ -428,6 +428,11 @@ UTIL_TIMER_Time_t UTIL_TIMER_GetElapsedTime(UTIL_TIMER_Time_t past )
   return UTIL_TimerDriver.Tick2ms( nowInTicks- pastInTicks );
 }
 
+UTIL_TIMER_Object_t *UTIL_TIMER_GetTimerList(void)
+{
+  return TimerListHead;
+}
+
 /**
   *  @}
   */
