@@ -1,6 +1,13 @@
 # Seeed-LoRa-E5
 LoRaWAN end node built from scratch using STM32CubeIDE/CubeMX for the LoRa-E5 WLE5x
 
+STM32CubeMX: v6.16.1
+STM32CubeIDE: v2.0.0
+
+This project can be freely re-configured with CubeMX and re-generated. Note that if you do that, you must add code for the peripherals you add, which is not different than any other STM32CubeMX project. I can offer limited help with these kinds of changes.
+
+If something doesn't appear right, or if you implement new LoRaWAN features, please feel free to open a PR.
+
 UPDATE 18 Jan 2026: I have updated to STM32WL firmware v1.4.0, and specifically tested NVM storage of context (including devNonce). Version 1.4.0 also addresses a serious issue with the ADC hanging on power-on after being in the STOP state. I have promoted V1.4.0 to the default repo.
 
 If you're looking for an RAK3172 version of this, have a look at https://github.com/danak6jq/RAK3172
@@ -73,5 +80,6 @@ and
 <img width="613" alt="image" src="https://user-images.githubusercontent.com/942815/145850066-bbd75cbc-b373-4332-898d-0140b003da20.png">
 
 - This creates a new "End client framework" project with no user code (such as contained in the repo code) included. You'll want to refer to the repo code and ST documentation for using their LoRaWAN stack.
+
 
 
