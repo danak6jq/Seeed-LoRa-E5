@@ -48,7 +48,6 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
   RAM    (xrw)   : ORIGIN = 0x20000000, LENGTH = 64K
-  RAM2   (xrw)   : ORIGIN = 0x10000000, LENGTH = 32K
   FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 248K
   USER_Key_region_ROM (rx)    : ORIGIN = 0x0803E500, LENGTH = 768
 }
@@ -195,3 +194,4 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
+
