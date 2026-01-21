@@ -4,8 +4,6 @@ LoRaWAN end node built from scratch using STM32CubeIDE/CubeMX for the LoRa-E5 WL
 STM32CubeMX: v6.16.1
 STM32CubeIDE: v2.0.0
 
-Check branch FW1.4.0-FreeRTOS for a port to use FreeRTOS.
-
 This project can be freely re-configured with CubeMX and re-generated. Note that if you do that, you must add code for the peripherals you add, which is not different than any other STM32CubeMX project. I can offer limited help with these kinds of changes.
 
 If something doesn't appear right, or if you implement new LoRaWAN features, please feel free to open a PR.
@@ -78,6 +76,7 @@ and
 ## Starting a new project
 
 <TBD>
+
 
 
 
