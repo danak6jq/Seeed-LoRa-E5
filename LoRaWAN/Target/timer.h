@@ -5,9 +5,9 @@
   * @author  MCD Application Team
   * @brief   Wrapper to timer server
   ******************************************************************************
-    * @attention
+  * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file

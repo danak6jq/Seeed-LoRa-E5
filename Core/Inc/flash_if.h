@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -55,6 +55,7 @@ typedef enum
 
 /* Exported constants --------------------------------------------------------*/
 #define FLASH_IF_BUFFER_SIZE       0x00000800U /*!< FLASH Page Size, 2 KBytes */
+
 /* USER CODE BEGIN EC */
 
 /* USER CODE END EC */

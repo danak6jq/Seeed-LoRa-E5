@@ -3,11 +3,11 @@
   ******************************************************************************
   * @file    mw_log_conf.h
   * @author  MCD Application Team
-  * @brief   Configure (enable/disable) traces for CM0
+  * @brief   Configure (enable/disable) traces
   *******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file

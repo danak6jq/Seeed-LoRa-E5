@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -34,8 +34,6 @@ extern "C" {
 /* definition and callback for tiny_vsnprintf */
 #include "stm32_tiny_vsnprintf.h"
 
-/* enum number of task and priority*/
-#include "utilities_def.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -109,18 +107,6 @@ extern "C" {
 /******************************************************************************
   * sequencer
   ******************************************************************************/
-
-/**
-  * @brief default number of tasks configured in sequencer
-  */
-#define UTIL_SEQ_CONF_TASK_NBR    CFG_SEQ_Task_NBR
-
-/**
-  * @brief default value of priority task
-  */
-
-#define UTIL_SEQ_CONF_PRIO_NBR    CFG_SEQ_Prio_NBR
-
 /**
   * @brief macro used to initialize the critical section
   */

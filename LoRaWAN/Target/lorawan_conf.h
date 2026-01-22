@@ -5,7 +5,7 @@
   * @author  MCD Application Team
   * @brief   Header for LoRaWAN middleware instances
   ******************************************************************************
-    * @attention
+  * @attention
   *
   * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
@@ -66,7 +66,7 @@ extern "C" {
  *  - Firmware Management Protocol (Package ID: 4, Default Port: 203)
  *  The Certification Protocol is also defined as a mandatory package (Package ID: 0, Default Port: 224)
  */
-#define LORAWAN_DATA_DISTRIB_MGT                        1
+#define LORAWAN_DATA_DISTRIB_MGT                        0
 
 /*!
  * @brief LoRaWAN packages version
@@ -81,7 +81,7 @@ extern "C" {
  *             - Fragmented Data Block Transport v2.0.0
  *             - Firmware Management Protocol v1.0.0
  */
-#define LORAWAN_PACKAGES_VERSION                        2
+#define LORAWAN_PACKAGES_VERSION                        1
 
 /* Region ------------------------------------*/
 /* the region listed here will be linked in the MW code */

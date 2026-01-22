@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2020(-2021) STMicroelectronics.
+  * Copyright (c) 2020-2021 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -127,7 +127,6 @@ Infinite_Loop:
 ******************************************************************************/
   .section .isr_vector,"a",%progbits
   .type g_pfnVectors, %object
-  .size g_pfnVectors, .-g_pfnVectors
 
 g_pfnVectors:
   .word _estack
@@ -208,6 +207,8 @@ g_pfnVectors:
   .word	DMA2_Channel6_IRQHandler             			/* DMA2 channel 6 interrupt                           */
   .word	DMA2_Channel7_IRQHandler             			/* DMA2 channel 7 interrupt                           */
   .word	DMAMUX1_OVR_IRQHandler               			/* DMAMUX overrun interrupt                           */
+
+  .size g_pfnVectors, .-g_pfnVectors
 
 /*******************************************************************************
 *
@@ -422,5 +423,3 @@ g_pfnVectors:
 	.thumb_set DMAMUX1_OVR_IRQHandler,Default_Handler
 
 	.weak	SystemInit
-
-/************************ (C) COPYRIGHT STMicroelectonics *****END OF FILE****/

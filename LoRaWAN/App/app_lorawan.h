@@ -57,11 +57,6 @@ extern "C" {
   */
 void MX_LoRaWAN_Init(void);
 
-/**
-  * @brief  Entry Lora Process or scheduling
-  */
-void MX_LoRaWAN_Process(void);
-
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

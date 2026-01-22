@@ -22,7 +22,7 @@
 #include "platform.h"
 #include "sys_app.h"
 #include "lora_app.h"
-#include "stm32_seq.h"
+#include "cmsis_os2.h"
 #include "stm32_timer.h"
 #include "utilities_def.h"
 #include "app_version.h"
@@ -88,6 +88,7 @@ typedef enum TxEventType_e
 #define LORAWAN_NVM_BASE_ADDRESS                    ((void *)0x0803F000UL)
 
 /* USER CODE BEGIN PD */
+
 static const char *slotStrings[] = { "1", "2", "C", "C_MC", "P", "P_MC" };
 /* USER CODE END PD */
 
@@ -216,8 +217,6 @@ static void OnSystemReset(void);
 
 /* USER CODE BEGIN PFP */
 
-
-
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -291,6 +290,62 @@ static UTIL_TIMER_Time_t TxPeriodicity = APP_TX_DUTYCYCLE;
   */
 static UTIL_TIMER_Object_t StopJoinTimer;
 
+osThreadId_t Thd_LoraSendProcessId;
+
+const osThreadAttr_t Thd_LoraSendProcess_attr =
+{
+  .name = CFG_APP_LORA_PROCESS_NAME,
+  .attr_bits = CFG_APP_LORA_PROCESS_ATTR_BITS,
+  .cb_mem = CFG_APP_LORA_PROCESS_CB_MEM,
+  .cb_size = CFG_APP_LORA_PROCESS_CB_SIZE,
+  .stack_mem = CFG_APP_LORA_PROCESS_STACK_MEM,
+  .priority = CFG_APP_LORA_PROCESS_PRIORITY,
+  .stack_size = CFG_APP_LORA_PROCESS_STACK_SIZE
+};
+static void Thd_LoraSendProcess(void *argument);
+
+osThreadId_t Thd_LoraStoreContextId;
+
+const osThreadAttr_t Thd_LoraStoreContext_attr =
+{
+  .name = CFG_APP_LORA_STORE_CONTEXT_NAME,
+  .attr_bits = CFG_APP_LORA_STORE_CONTEXT_ATTR_BITS,
+  .cb_mem = CFG_APP_LORA_STORE_CONTEXT_CB_MEM,
+  .cb_size = CFG_APP_LORA_STORE_CONTEXT_CB_SIZE,
+  .stack_mem = CFG_APP_LORA_STORE_CONTEXT_STACK_MEM,
+  .priority = CFG_APP_LORA_STORE_CONTEXT_PRIORITY,
+  .stack_size = CFG_APP_LORA_STORE_CONTEXT_STACK_SIZE
+};
+static void Thd_LoraStoreContext(void *argument);
+
+osThreadId_t Thd_LoraStopJoinId;
+
+const osThreadAttr_t Thd_LoraStopJoin_attr =
+{
+  .name = CFG_APP_LORA_STOP_JOIN_NAME,
+  .attr_bits = CFG_APP_LORA_STOP_JOIN_ATTR_BITS,
+  .cb_mem = CFG_APP_LORA_STOP_JOIN_CB_MEM,
+  .cb_size = CFG_APP_LORA_STOP_JOIN_CB_SIZE,
+  .stack_mem = CFG_APP_LORA_STOP_JOIN_STACK_MEM,
+  .priority = CFG_APP_LORA_STOP_JOIN_PRIORITY,
+  .stack_size = CFG_APP_LORA_STOP_JOIN_STACK_SIZE
+};
+static void Thd_LoraStopJoin(void *argument);
+
+osThreadId_t Thd_LmHandlerProcessId;
+
+const osThreadAttr_t Thd_LmHandlerProcess_attr =
+{
+  .name = CFG_LM_HANDLER_PROCESS_NAME,
+  .attr_bits = CFG_LM_HANDLER_PROCESS_ATTR_BITS,
+  .cb_mem = CFG_LM_HANDLER_PROCESS_CB_MEM,
+  .cb_size = CFG_LM_HANDLER_PROCESS_CB_SIZE,
+  .stack_mem = CFG_LM_HANDLER_PROCESS_STACK_MEM,
+  .priority = CFG_LM_HANDLER_PROCESS_PRIORITY,
+  .stack_size = CFG_LM_HANDLER_PROCESS_STACK_SIZE
+};
+static void Thd_LmHandlerProcess(void *argument);
+
 /* USER CODE BEGIN PV */
 /**
   * @brief User application buffer
@@ -306,12 +361,10 @@ static LmHandlerAppData_t AppData = { 0, 0, AppDataBuffer };
   * @brief Specifies the state of the application LED
   */
 static uint8_t AppLedStateOn = RESET;
-
 /**
   * Temp buffer to store a FLASH page in RAM when partial replacement is needed
   */
 static uint8_t FLASH_RAM_buffer[FLASH_IF_BUFFER_SIZE];
-
 /* USER CODE END PV */
 
 /* Exported functions ---------------------------------------------------------*/
@@ -322,11 +375,11 @@ static uint8_t FLASH_RAM_buffer[FLASH_IF_BUFFER_SIZE];
 void LoRaWAN_Init(void)
 {
   /* USER CODE BEGIN LoRaWAN_Init_LV */
+
   uint32_t feature_version = 0UL;
   /* USER CODE END LoRaWAN_Init_LV */
 
   /* USER CODE BEGIN LoRaWAN_Init_1 */
-
   /* Get LoRaWAN APP version*/
   APP_LOG(TS_OFF, VLEVEL_M, "APPLICATION_VERSION: V%X.%X.%X\r\n",
           (uint8_t)(APP_VERSION_MAIN),
@@ -360,6 +413,8 @@ void LoRaWAN_Init(void)
           (uint8_t)(feature_version >> 8),
           (uint8_t)(feature_version));
 
+
+
   if (FLASH_IF_Init(FLASH_RAM_buffer) != FLASH_IF_OK)
   {
     Error_Handler();  // XXX: improve this
@@ -369,11 +424,27 @@ void LoRaWAN_Init(void)
 
   UTIL_TIMER_Create(&StopJoinTimer, JOIN_TIME, UTIL_TIMER_ONESHOT, OnStopJoinTimerEvent, NULL);
 
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LmHandlerProcess), UTIL_SEQ_RFU, LmHandlerProcess);
+  Thd_LmHandlerProcessId = osThreadNew(Thd_LmHandlerProcess, NULL, &Thd_LmHandlerProcess_attr);
+  if (Thd_LmHandlerProcessId == NULL)
+  {
+    Error_Handler();
+  }
 
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), UTIL_SEQ_RFU, SendTxData);
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LoRaStoreContextEvent), UTIL_SEQ_RFU, StoreContext);
-  UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_LoRaStopJoinEvent), UTIL_SEQ_RFU, StopJoin);
+  Thd_LoraSendProcessId = osThreadNew(Thd_LoraSendProcess, NULL, &Thd_LoraSendProcess_attr);
+  if (Thd_LoraSendProcessId == NULL)
+  {
+    Error_Handler();
+  }
+  Thd_LoraStoreContextId = osThreadNew(Thd_LoraStoreContext, NULL, &Thd_LoraStoreContext_attr);
+  if (Thd_LoraStoreContextId == NULL)
+  {
+    Error_Handler();
+  }
+  Thd_LoraStopJoinId = osThreadNew(Thd_LoraStopJoin, NULL, &Thd_LoraStopJoin_attr);
+  if (Thd_LoraStopJoinId == NULL)
+  {
+    Error_Handler();
+  }
 
   /* Init Info table used by LmHandler*/
   LoraInfo_Init();
@@ -384,8 +455,6 @@ void LoRaWAN_Init(void)
   LmHandlerConfigure(&LmHandlerParams);
 
   /* USER CODE BEGIN LoRaWAN_Init_2 */
-
-
   /* USER CODE END LoRaWAN_Init_2 */
 
   LmHandlerJoin(ActivationType, ForceRejoin);
@@ -419,14 +488,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
       /* Note: when "EventType == TX_ON_TIMER" this GPIO is not initialized */
       if (EventType == TX_ON_EVENT)
       {
-        UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
+        osThreadFlagsSet(Thd_LoraSendProcessId, 1);
       }
       break;
     case  BUT2_Pin:
-      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStopJoinEvent), CFG_SEQ_Prio_0);
+      osThreadFlagsSet(Thd_LoraStopJoinId, 1);
       break;
     case  BUT3_Pin:
-      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStoreContextEvent), CFG_SEQ_Prio_0);
+      osThreadFlagsSet(Thd_LoraStoreContextId, 1);
       break;
     default:
       break;
@@ -441,190 +510,255 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 /* USER CODE END PrFD */
 
+static void Thd_LmHandlerProcess(void *argument)
+{
+  /* USER CODE BEGIN Thd_LmHandlerProcess_1 */
+
+  /* USER CODE END Thd_LmHandlerProcess_1 */
+  UNUSED(argument);
+  for (;;)
+  {
+    osThreadFlagsWait(1, osFlagsWaitAny, osWaitForever);
+    LmHandlerProcess(); /*what you want to do*/
+    /* USER CODE BEGIN Thd_LmHandlerProcess_2 */
+
+    /* USER CODE END Thd_LmHandlerProcess_2 */
+  }
+}
+
+static void Thd_LoraSendProcess(void *argument)
+{
+  /* USER CODE BEGIN Thd_LoraSendProcess_1 */
+
+  /* USER CODE END Thd_LoraSendProcess_1 */
+  UNUSED(argument);
+  for (;;)
+  {
+    osThreadFlagsWait(1, osFlagsWaitAny, osWaitForever);
+    SendTxData();  /*what you want to do*/
+  }
+
+  /* USER CODE BEGIN Thd_LoraSendProcess_2 */
+
+  /* USER CODE END Thd_LoraSendProcess_2 */
+}
+
+static void Thd_LoraStoreContext(void *argument)
+{
+  /* USER CODE BEGIN Thd_LoraStoreContext_1 */
+
+  /* USER CODE END Thd_LoraStoreContext_1 */
+  UNUSED(argument);
+  for (;;)
+  {
+    osThreadFlagsWait(1, osFlagsWaitAny, osWaitForever);
+    StoreContext();  /*what you want to do*/
+  }
+
+  /* USER CODE BEGIN Thd_LoraStoreContext_2 */
+
+  /* USER CODE END Thd_LoraStoreContext_2 */
+}
+
+static void Thd_LoraStopJoin(void *argument)
+{
+  /* USER CODE BEGIN Thd_LoraStopJoin_1 */
+
+  /* USER CODE END Thd_LoraStopJoin_1 */
+  UNUSED(argument);
+  for (;;)
+  {
+    osThreadFlagsWait(1, osFlagsWaitAny, osWaitForever);
+    StopJoin();  /*what you want to do*/
+  }
+
+  /* USER CODE BEGIN Thd_LoraStopJoin_2 */
+
+  /* USER CODE END Thd_LoraStopJoin_2 */
+}
+
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
   /* USER CODE BEGIN OnRxData_1 */
-  uint8_t RxPort = 0;
+	  uint8_t RxPort = 0;
 
-  if (params != NULL)
-  {
+	  if (params != NULL)
+	  {
 
 
-    if (params->IsMcpsIndication)
-    {
-      if (appData != NULL)
-      {
-        RxPort = appData->Port;
-        if (appData->Buffer != NULL)
-        {
-          switch (appData->Port)
-          {
-            case LORAWAN_SWITCH_CLASS_PORT:
-              /*this port switches the class*/
-              if (appData->BufferSize == 1)
-              {
-                switch (appData->Buffer[0])
-                {
-                  case 0:
-                  {
-                    LmHandlerRequestClass(CLASS_A);
-                    break;
-                  }
-                  case 1:
-                  {
-                    LmHandlerRequestClass(CLASS_B);
-                    break;
-                  }
-                  case 2:
-                  {
-                    LmHandlerRequestClass(CLASS_C);
-                    break;
-                  }
-                  default:
-                    break;
-                }
-              }
-              break;
-            case LORAWAN_USER_APP_PORT:
-              if (appData->BufferSize == 1)
-              {
-                AppLedStateOn = appData->Buffer[0] & 0x01;
-                if (AppLedStateOn == RESET)
-                {
-                  APP_LOG(TS_OFF, VLEVEL_H, "LED OFF\r\n");
+	    if (params->IsMcpsIndication)
+	    {
+	      if (appData != NULL)
+	      {
+	        RxPort = appData->Port;
+	        if (appData->Buffer != NULL)
+	        {
+	          switch (appData->Port)
+	          {
+	            case LORAWAN_SWITCH_CLASS_PORT:
+	              /*this port switches the class*/
+	              if (appData->BufferSize == 1)
+	              {
+	                switch (appData->Buffer[0])
+	                {
+	                  case 0:
+	                  {
+	                    LmHandlerRequestClass(CLASS_A);
+	                    break;
+	                  }
+	                  case 1:
+	                  {
+	                    LmHandlerRequestClass(CLASS_B);
+	                    break;
+	                  }
+	                  case 2:
+	                  {
+	                    LmHandlerRequestClass(CLASS_C);
+	                    break;
+	                  }
+	                  default:
+	                    break;
+	                }
+	              }
+	              break;
+	            case LORAWAN_USER_APP_PORT:
+	              if (appData->BufferSize == 1)
+	              {
+	                AppLedStateOn = appData->Buffer[0] & 0x01;
+	                if (AppLedStateOn == RESET)
+	                {
+	                  APP_LOG(TS_OFF, VLEVEL_H, "LED OFF\r\n");
 
-                }
-                else
-                {
-                  APP_LOG(TS_OFF, VLEVEL_H, "LED ON\r\n");
+	                }
+	                else
+	                {
+	                  APP_LOG(TS_OFF, VLEVEL_H, "LED ON\r\n");
 
-                }
-              }
-              break;
+	                }
+	              }
+	              break;
 
-            default:
+	            default:
 
-              break;
-          }
-        }
-      }
-    }
-    if (params->RxSlot < RX_SLOT_NONE)
-    {
-      APP_LOG(TS_OFF, VLEVEL_H, "###### D/L FRAME:%04d | PORT:%d | DR:%d | SLOT:%s | RSSI:%d | SNR:%d\r\n",
-              params->DownlinkCounter, RxPort, params->Datarate, slotStrings[params->RxSlot],
-              params->Rssi, params->Snr);
-    }
-  }
+	              break;
+	          }
+	        }
+	      }
+	    }
+	    if (params->RxSlot < RX_SLOT_NONE)
+	    {
+	      APP_LOG(TS_OFF, VLEVEL_H, "###### D/L FRAME:%04d | PORT:%d | DR:%d | SLOT:%s | RSSI:%d | SNR:%d\r\n",
+	              params->DownlinkCounter, RxPort, params->Datarate, slotStrings[params->RxSlot],
+	              params->Rssi, params->Snr);
+	    }
+	  }
   /* USER CODE END OnRxData_1 */
 }
 
 static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
-  LmHandlerErrorStatus_t status = LORAMAC_HANDLER_ERROR;
-  uint8_t batteryLevel = GetBatteryLevel();
-  sensor_t sensor_data;
-  UTIL_TIMER_Time_t nextTxIn = 0;
+	  LmHandlerErrorStatus_t status = LORAMAC_HANDLER_ERROR;
+	  uint8_t batteryLevel = GetBatteryLevel();
+	  sensor_t sensor_data;
+	  UTIL_TIMER_Time_t nextTxIn = 0;
 
-  if (LmHandlerIsBusy() == false)
-  {
-#ifdef CAYENNE_LPP
-  uint8_t channel = 0;
-#else
-  uint16_t pressure = 0;
-  int16_t temperature = 0;
-  uint16_t humidity = 0;
-  uint32_t i = 0;
-  int32_t latitude = 0;
-  int32_t longitude = 0;
-  uint16_t altitudeGps = 0;
-#endif /* CAYENNE_LPP */
+	  if (LmHandlerIsBusy() == false)
+	  {
+	#ifdef CAYENNE_LPP
+	  uint8_t channel = 0;
+	#else
+	  uint16_t pressure = 0;
+	  int16_t temperature = 0;
+	  uint16_t humidity = 0;
+	  uint32_t i = 0;
+	  int32_t latitude = 0;
+	  int32_t longitude = 0;
+	  uint16_t altitudeGps = 0;
+	#endif /* CAYENNE_LPP */
 
-  EnvSensors_Read(&sensor_data);
+	  EnvSensors_Read(&sensor_data);
 
-  APP_LOG(TS_ON, VLEVEL_M, "VDDA: %d\r\n", batteryLevel);
-  APP_LOG(TS_ON, VLEVEL_M, "temp: %d\r\n", (int16_t)(sensor_data.temperature));
+	  APP_LOG(TS_ON, VLEVEL_M, "VDDA: %d\r\n", batteryLevel);
+	  APP_LOG(TS_ON, VLEVEL_M, "temp: %d\r\n", (int16_t)(sensor_data.temperature));
 
-  AppData.Port = LORAWAN_USER_APP_PORT;
+	  AppData.Port = LORAWAN_USER_APP_PORT;
 
-#ifdef CAYENNE_LPP
-  CayenneLppReset();
-  CayenneLppAddBarometricPressure(channel++, sensor_data.pressure);
-  CayenneLppAddTemperature(channel++, sensor_data.temperature);
-  CayenneLppAddRelativeHumidity(channel++, (uint16_t)(sensor_data.humidity));
+	#ifdef CAYENNE_LPP
+	  CayenneLppReset();
+	  CayenneLppAddBarometricPressure(channel++, sensor_data.pressure);
+	  CayenneLppAddTemperature(channel++, sensor_data.temperature);
+	  CayenneLppAddRelativeHumidity(channel++, (uint16_t)(sensor_data.humidity));
 
-  if ((LmHandlerParams.ActiveRegion != LORAMAC_REGION_US915) && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AU915)
-      && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AS923))
-  {
-    CayenneLppAddDigitalInput(channel++, GetBatteryLevel());
-    CayenneLppAddDigitalOutput(channel++, AppLedStateOn);
-  }
+	  if ((LmHandlerParams.ActiveRegion != LORAMAC_REGION_US915) && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AU915)
+	      && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AS923))
+	  {
+	    CayenneLppAddDigitalInput(channel++, GetBatteryLevel());
+	    CayenneLppAddDigitalOutput(channel++, AppLedStateOn);
+	  }
 
-  CayenneLppCopy(AppData.Buffer);
-  AppData.BufferSize = CayenneLppGetSize();
-#else  /* not CAYENNE_LPP */
-  humidity    = (uint16_t)(sensor_data.humidity * 10);            /* in %*10     */
-  temperature = (int16_t)(sensor_data.temperature);
-  pressure = (uint16_t)(sensor_data.pressure * 100 / 10); /* in hPa / 10 */
+	  CayenneLppCopy(AppData.Buffer);
+	  AppData.BufferSize = CayenneLppGetSize();
+	#else  /* not CAYENNE_LPP */
+	  humidity    = (uint16_t)(sensor_data.humidity * 10);            /* in %*10     */
+	  temperature = (int16_t)(sensor_data.temperature);
+	  pressure = (uint16_t)(sensor_data.pressure * 100 / 10); /* in hPa / 10 */
 
-  AppData.Buffer[i++] = AppLedStateOn;
-  AppData.Buffer[i++] = (uint8_t)((pressure >> 8) & 0xFF);
-  AppData.Buffer[i++] = (uint8_t)(pressure & 0xFF);
-  AppData.Buffer[i++] = (uint8_t)(temperature & 0xFF);
-  AppData.Buffer[i++] = (uint8_t)((humidity >> 8) & 0xFF);
-  AppData.Buffer[i++] = (uint8_t)(humidity & 0xFF);
+	  AppData.Buffer[i++] = AppLedStateOn;
+	  AppData.Buffer[i++] = (uint8_t)((pressure >> 8) & 0xFF);
+	  AppData.Buffer[i++] = (uint8_t)(pressure & 0xFF);
+	  AppData.Buffer[i++] = (uint8_t)(temperature & 0xFF);
+	  AppData.Buffer[i++] = (uint8_t)((humidity >> 8) & 0xFF);
+	  AppData.Buffer[i++] = (uint8_t)(humidity & 0xFF);
 
-  if ((LmHandlerParams.ActiveRegion == LORAMAC_REGION_US915) || (LmHandlerParams.ActiveRegion == LORAMAC_REGION_AU915)
-      || (LmHandlerParams.ActiveRegion == LORAMAC_REGION_AS923))
-  {
-    AppData.Buffer[i++] = 0;
-    AppData.Buffer[i++] = 0;
-    AppData.Buffer[i++] = 0;
-    AppData.Buffer[i++] = 0;
-  }
-  else
-  {
-    latitude = sensor_data.latitude;
-    longitude = sensor_data.longitude;
+	  if ((LmHandlerParams.ActiveRegion == LORAMAC_REGION_US915) || (LmHandlerParams.ActiveRegion == LORAMAC_REGION_AU915)
+	      || (LmHandlerParams.ActiveRegion == LORAMAC_REGION_AS923))
+	  {
+	    AppData.Buffer[i++] = 0;
+	    AppData.Buffer[i++] = 0;
+	    AppData.Buffer[i++] = 0;
+	    AppData.Buffer[i++] = 0;
+	  }
+	  else
+	  {
+	    latitude = sensor_data.latitude;
+	    longitude = sensor_data.longitude;
 
-    AppData.Buffer[i++] = GetBatteryLevel();        /* 1 (very low) to 254 (fully charged) */
-    AppData.Buffer[i++] = (uint8_t)((latitude >> 16) & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)((latitude >> 8) & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)(latitude & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)((longitude >> 16) & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)((longitude >> 8) & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)(longitude & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)((altitudeGps >> 8) & 0xFF);
-    AppData.Buffer[i++] = (uint8_t)(altitudeGps & 0xFF);
-  }
+	    AppData.Buffer[i++] = GetBatteryLevel();        /* 1 (very low) to 254 (fully charged) */
+	    AppData.Buffer[i++] = (uint8_t)((latitude >> 16) & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)((latitude >> 8) & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)(latitude & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)((longitude >> 16) & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)((longitude >> 8) & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)(longitude & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)((altitudeGps >> 8) & 0xFF);
+	    AppData.Buffer[i++] = (uint8_t)(altitudeGps & 0xFF);
+	  }
 
-  AppData.BufferSize = i;
-#endif /* CAYENNE_LPP */
+	  AppData.BufferSize = i;
+	#endif /* CAYENNE_LPP */
 
+	  status = LmHandlerSend(&AppData, LmHandlerParams.IsTxConfirmed, false);
+	  if (LORAMAC_HANDLER_SUCCESS == status)
+	  {
+	    APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
+	  }
+	  else if (LORAMAC_HANDLER_DUTYCYCLE_RESTRICTED == status)
+	  {
+	    nextTxIn = LmHandlerGetDutyCycleWaitTime();
+	    if (nextTxIn > 0)
+	    {
+	      APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
+	    }
+	  }
+	  }
 
-
-  status = LmHandlerSend(&AppData, LmHandlerParams.IsTxConfirmed, false);
-  if (LORAMAC_HANDLER_SUCCESS == status)
-  {
-    APP_LOG(TS_ON, VLEVEL_L, "SEND REQUEST\r\n");
-  }
-  else if (LORAMAC_HANDLER_DUTYCYCLE_RESTRICTED == status)
-  {
-    nextTxIn = LmHandlerGetDutyCycleWaitTime();
-    if (nextTxIn > 0)
-    {
-      APP_LOG(TS_ON, VLEVEL_L, "Next Tx in  : ~%d second(s)\r\n", (nextTxIn / 1000));
-    }
-  }
-  }
-
-  if (EventType == TX_ON_TIMER)
-  {
-    UTIL_TIMER_Stop(&TxTimer);
-    UTIL_TIMER_SetPeriod(&TxTimer, MAX(nextTxIn, TxPeriodicity));
-    UTIL_TIMER_Start(&TxTimer);
-  }
+	  if (EventType == TX_ON_TIMER)
+	  {
+	    UTIL_TIMER_Stop(&TxTimer);
+	    UTIL_TIMER_SetPeriod(&TxTimer, MAX(nextTxIn, TxPeriodicity));
+	    UTIL_TIMER_Start(&TxTimer);
+	  }
 
   /* USER CODE END SendTxData_1 */
 }
@@ -634,7 +768,7 @@ static void OnTxTimerEvent(void *context)
   /* USER CODE BEGIN OnTxTimerEvent_1 */
 
   /* USER CODE END OnTxTimerEvent_1 */
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent), CFG_SEQ_Prio_0);
+  osThreadFlagsSet(Thd_LoraSendProcessId, 1);
 
   /*Wait for next tx slot*/
   UTIL_TIMER_Start(&TxTimer);
@@ -644,7 +778,6 @@ static void OnTxTimerEvent(void *context)
 }
 
 /* USER CODE BEGIN PrFD_LedEvents */
-
 
 /* USER CODE END PrFD_LedEvents */
 
@@ -683,9 +816,7 @@ static void OnJoinRequest(LmHandlerJoinParams_t *joinParams)
   {
     if (joinParams->Status == LORAMAC_HANDLER_SUCCESS)
     {
-      UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStoreContextEvent), CFG_SEQ_Prio_0);
-
-
+      osThreadFlagsSet(Thd_LoraStoreContextId, 1);
 
       APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = JOINED = ");
       if (joinParams->Mode == ACTIVATION_TYPE_ABP)
@@ -765,7 +896,7 @@ static void OnMacProcessNotify(void)
   /* USER CODE BEGIN OnMacProcessNotify_1 */
 
   /* USER CODE END OnMacProcessNotify_1 */
-  UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LmHandlerProcess), CFG_SEQ_Prio_0);
+  osThreadFlagsSet(Thd_LmHandlerProcessId, 1);
 
   /* USER CODE BEGIN OnMacProcessNotify_2 */
 
@@ -834,7 +965,6 @@ static void StopJoin(void)
 {
   /* USER CODE BEGIN StopJoin_1 */
 
-
   /* USER CODE END StopJoin_1 */
 
   UTIL_TIMER_Stop(&TxTimer);
@@ -873,7 +1003,7 @@ static void OnStopJoinTimerEvent(void *context)
   /* USER CODE END OnStopJoinTimerEvent_1 */
   if (ActivationType == LORAWAN_DEFAULT_ACTIVATION_TYPE)
   {
-    UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_LoRaStopJoinEvent), CFG_SEQ_Prio_0);
+    osThreadFlagsSet(Thd_LoraStopJoinId, 1);
   }
   /* USER CODE BEGIN OnStopJoinTimerEvent_Last */
 

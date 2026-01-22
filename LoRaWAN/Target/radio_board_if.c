@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file    radio_board_if.c
- * @author  MCD Application Team
- * @brief   This file provides an interface layer between MW and Radio Board
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2026 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file    radio_board_if.c
+  * @author  MCD Application Team
+  * @brief   This file provides an interface layer between MW and Radio Board
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -285,10 +285,10 @@ int32_t RBI_GetRFOMaxPowerConfig(RBI_RFOMaxPowerConfig_TypeDef Config)
   int32_t ret = 0;
   /* USER CODE BEGIN RBI_GetRFOMaxPowerConfig_2 */
 	if (Config == RBI_RFO_LP_MAXPOWER) {
-		ret = 15; /*dBm*/
+    ret = 15; /*dBm*/
 	} else {
-		ret = 22; /*dBm*/
-	}
+    ret = 22; /*dBm*/
+  }
   /* USER CODE END RBI_GetRFOMaxPowerConfig_2 */
   return ret;
 #endif  /* USE_BSP_DRIVER  */

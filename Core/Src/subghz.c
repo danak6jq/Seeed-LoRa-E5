@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -58,7 +58,7 @@ void HAL_SUBGHZ_MspInit(SUBGHZ_HandleTypeDef* subghzHandle)
     __HAL_RCC_SUBGHZSPI_CLK_ENABLE();
 
     /* SUBGHZ interrupt Init */
-    HAL_NVIC_SetPriority(SUBGHZ_Radio_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(SUBGHZ_Radio_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(SUBGHZ_Radio_IRQn);
   /* USER CODE BEGIN SUBGHZ_MspInit 1 */
 

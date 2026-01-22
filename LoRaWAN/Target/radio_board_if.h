@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -89,7 +89,6 @@ extern "C" {
 
 #else
 /* USER CODE BEGIN Exported PinMapping */
-
 #define RF_SW_CTRL1_PIN                          GPIO_PIN_4
 #define RF_SW_CTRL1_GPIO_PORT                    GPIOA
 #define RF_SW_CTRL1_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOA_CLK_ENABLE()
@@ -99,7 +98,6 @@ extern "C" {
 #define RF_SW_CTRL2_GPIO_PORT                    GPIOA
 #define RF_SW_CTRL2_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOA_CLK_ENABLE()
 #define RF_SW_CTRL2_GPIO_CLK_DISABLE()           __HAL_RCC_GPIOA_CLK_DISABLE()
-
 /* USER CODE END Exported PinMapping */
 #endif  /* USE_BSP_DRIVER  */
 

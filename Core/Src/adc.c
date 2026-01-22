@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -47,7 +47,7 @@ void MX_ADC_Init(void)
   hadc.Init.ScanConvMode = ADC_SCAN_DISABLE;
   hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
-  hadc.Init.LowPowerAutoPowerOff = DISABLE;
+  hadc.Init.LowPowerAutoPowerOff = ENABLE;
   hadc.Init.ContinuousConvMode = DISABLE;
   hadc.Init.NbrOfConversion = 1;
   hadc.Init.DiscontinuousConvMode = DISABLE;
@@ -57,7 +57,10 @@ void MX_ADC_Init(void)
   hadc.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_160CYCLES_5;
   hadc.Init.SamplingTimeCommon2 = ADC_SAMPLETIME_160CYCLES_5;
-  hadc.Init.OversamplingMode = DISABLE;
+  hadc.Init.OversamplingMode = ENABLE;
+  hadc.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_256;
+  hadc.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_8;
+  hadc.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;
   hadc.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
   if (HAL_ADC_Init(&hadc) != HAL_OK)
   {
